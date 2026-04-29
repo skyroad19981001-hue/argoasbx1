@@ -77,7 +77,7 @@
 
 * ### 模版1：多个任意协议组合运行
 ```
-sspt="" vlpt="" vmpt="" vwpt="" hypt="" tupt="" xhpt="" vxpt="" anpt="" arpt="" sopt="" bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)
+sspt="" vlpt="" vmpt="" vwpt="" hypt="" tupt="" xhpt="" vxpt="" anpt="" arpt="" sopt="" bash <(curl -Ls https://raw.githubusercontent.com/skyroad19981001-hue/argoasbx1/main/argosbx.sh)
 ```
 
 * ### 模版2：主流TCP或UDP单个协议运行
