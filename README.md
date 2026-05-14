@@ -21,10 +21,10 @@
 #### 5、Argosbx客户端推荐：
 
 安卓手机客户端：[Nekobox-starifly版(全协议支持)](https://github.com/starifly/NekoBoxForAndroid/releases)、[V2rayNG官方版](https://github.com/2dust/v2rayNG/releases)
-
+Hiddify v4.1.1
 电脑win客户端：[V2rayN官方版(全协议支持)](https://github.com/2dust/v2rayN/releases)
-
-苹果IOS客户端：Happ、OneXray、Streisand
+Hiddify v4.1.1
+苹果IOS客户端：Happ、OneXray、Streisand,Hiddify v4.1.1
 
 ----------------------------------------------------------
 
