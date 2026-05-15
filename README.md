@@ -53,13 +53,7 @@
 | 27、【仅容器类docker】启用vless-ws-tls | DOMAIN | 服务器域名 | 关闭vless-ws-tls | 关闭vless-ws-tls | 可选，vless-ws-tls可独立存在，uuid变量必须启用 |
 -------------------------------------------------------------
 
-* #### 如下图：从此抛弃第三方独立的WARP脚本，xray+singbox双内核集成15种WARP出站组合：[点击视频教程](https://youtu.be/iywjT8fIka4)
-
-<img width="1015" height="681" alt="e0b66a115b1cd6a5060c38cae6e45c55" src="https://github.com/user-attachments/assets/06e69e8e-f714-4ba5-a519-f09fdecb0bbf" />
-
-----------------------------------------------------------
-
-## 二、SSH一键变量脚本模版说明：
+# 二、SSH一键变量脚本模版说明：
 
 ### 脚本以 ```变量名称="变量值"的单个或多个组合 + 主脚本``` 的形式运行
 
