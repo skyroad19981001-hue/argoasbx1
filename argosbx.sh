@@ -14,10 +14,10 @@ export LANG=en_US.UTF-8
 [ -z "${warp+x}" ] || wap=yes
 if find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null | grep -Eq 'agsbx/(s|x)' || pgrep -f 'agsbx/(s|x)' >/dev/null 2>&1; then
 if [ "$1" = "rep" ]; then
-[ "$vwp" = yes ] || [ "$sop" = yes ] || [ "$vxp" = yes ] || [ "$ssp" = yes ] || [ "$vlp" = yes ] || [ "$vmp" = yes ] || [ "$hyp" = yes ] || [ "$tup" = yes ] || [ "$xhp" = yes ] || [ "$anp" = yes ] || [ "$arp" = yes ] || { echo "提示：重置协议时，请在脚本前至少设置一个协议变量哦，再见！💣"; exit; }
+[ "$vwp" = yes ] || [ "$sop" = yes ] || [ "$vxp" = yes ] || [ "$ssp" = yes ] || [ "$vlp" = yes ] || [ "$vmp" = yes ] || [ "$hyp" = yes ] || [ "$tup" = yes ] || [ "$xhp" = yes ] || [ "$anp" = yes ] || [ "$arp" = yes ] || { echo "提示：rep重置协议时，请在脚本前至少设置一个协议变量哦，再见！"; exit; }
 fi
 else
-[ "$1" = "del" ] || [ "$vwp" = yes ] || [ "$sop" = yes ] || [ "$vxp" = yes ] || [ "$ssp" = yes ] || [ "$vlp" = yes ] || [ "$vmp" = yes ] || [ "$hyp" = yes ] || [ "$tup" = yes ] || [ "$xhp" = yes ] || [ "$anp" = yes ] || [ "$arp" = yes ] || { echo "提示：未安装脚本，请在脚本前至少设置一个协议变量哦，再见！💣"; exit; }
+[ "$1" = "del" ] || [ "$vwp" = yes ] || [ "$sop" = yes ] || [ "$vxp" = yes ] || [ "$ssp" = yes ] || [ "$vlp" = yes ] || [ "$vmp" = yes ] || [ "$hyp" = yes ] || [ "$tup" = yes ] || [ "$xhp" = yes ] || [ "$anp" = yes ] || [ "$arp" = yes ] || { echo "提示：未安装脚本，请在脚本前至少设置一个协议变量哦，再见！"; exit; }
 fi
 export uuid=${uuid:-''}
 export port_vl_re=${vlpt:-''}
@@ -45,14 +45,15 @@ agsbxurl="https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh"
 showmode(){
 echo "显示节点信息命令：agsbx list"
 echo "重置变量组命令：agsbx rep"
-echo "更新内核命令：agsbx upx或ups"
+echo "更新Xray或Singbox内核命令：agsbx upx或ups"
 echo "重启脚本命令：agsbx res"
 echo "卸载脚本命令：agsbx del"
+echo "双栈VPS显示IPv4/IPv6节点配置命令：ippz=4或6 agsbx list"
 echo "---------------------------------------------------------"
 echo
 }
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-echo "定制版协议脚本"
+echo "一键代理部署脚本"
 echo "当前版本：V26.5.10"
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 hostname=$(uname -a | awk '{print $2}')
@@ -977,10 +978,10 @@ xrsbout
 fi
 if [ -n "$argo" ] && [ -n "$vmag" ]; then
 echo
-echo "=========启用内核========="
+echo "=========启用Cloudflared-argo内核========="
 if [ ! -e "$HOME/agsbx/cloudflared" ]; then
 argocore=$({ command -v curl >/dev/null 2>&1 && curl -Ls https://data.jsdelivr.com/v1/package/gh/cloudflare/cloudflared || wget -qO- https://data.jsdelivr.com/v1/package/gh/cloudflare/cloudflared; } | grep -Eo '"[0-9.]+"' | sed -n 1p | tr -d '",')
-echo "下载内核：$argocore"
+echo "下载Cloudflared-argo最新正式版内核：$argocore"
 url="https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-$cpu"; out="$HOME/agsbx/cloudflared"; (command -v curl>/dev/null 2>&1 && curl -Lo "$out" -# --retry 2 "$url") || (command -v wget>/dev/null 2>&1 && timeout 3 wget -O "$out" --tries=2 "$url")
 chmod +x "$HOME/agsbx/cloudflared"
 fi
@@ -1029,7 +1030,7 @@ else
 argoname='临时'
 nohup "$HOME/agsbx/cloudflared" tunnel --url http://localhost:$(cat $HOME/agsbx/argoport.log) --edge-ip-version auto --no-autoupdate --protocol http2 > $HOME/agsbx/argo.log 2>&1 &
 fi
-echo "申请隧道中……请稍等"
+echo "申请Argo$argoname隧道中……请稍等"
 sleep 15
 if [ -n "${ARGO_DOMAIN}" ] && [ -n "${ARGO_AUTH}" ]; then
 argodomain=$(cat "$HOME/agsbx/sbargoym.log" 2>/dev/null)
@@ -1037,9 +1038,9 @@ else
 argodomain=$(grep -a trycloudflare.com "$HOME/agsbx/argo.log" 2>/dev/null | awk 'NR==2{print}' | awk -F// '{print $2}' | awk '{print $1}')
 fi
 if [ -n "${argodomain}" ]; then
-echo "隧道申请成功"
+echo "Argo$argoname隧道申请成功"
 else
-echo "隧道申请失败，请稍后再试"
+echo "Argo$argoname隧道申请失败，请稍后再试"
 fi
 fi
 sleep 5
@@ -1052,7 +1053,7 @@ mkdir -p "$HOME/bin"
 (command -v curl >/dev/null 2>&1 && curl -sL "$agsbxurl" -o "$SCRIPT_PATH") || (command -v wget >/dev/null 2>&1 && wget -qO "$SCRIPT_PATH" "$agsbxurl")
 chmod +x "$SCRIPT_PATH"
 if ! pidof systemd >/dev/null 2>&1 && ! command -v rc-service >/dev/null 2>&1; then
-echo "if ! find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null | grep -Eq 'agsbx/(s|x)' && ! pgrep -f 'agsbx/(s|x)' >/dev/null 2>&1; then echo '检测到系统中断，正在自动执行节点恢复操作...'; sleep 6; export cdnym=\"${cdnym}\" name=\"${name}\" ippz=\"${ippz}\" argo=\"${argo}\" uuid=\"${uuid}\" $wap=\"${warp}\" $xhp=\"${port_xh}\" $vxp=\"${port_vx}\" $ssp=\"${port_ss}\" $sop=\"${port_so}\" $anp=\"${port_an}\" $arp=\"${port_ar}\" $vlp=\"${port_vl_re}\" $vwp=\"${port_vw}\" $vmp=\"${port_vm_ws}\" $hyp=\"${port_hy2}\" $tup=\"${port_tu}\" reym=\"${ym_vl_re}\" agn=\"${ARGO_DOMAIN}\" agk=\"${ARGO_AUTH}\"; bash "$HOME/bin/agsbx"; fi" >> ~/.bashrc
+echo "if ! find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null | grep -Eq 'agsbx/(s|x)' && ! pgrep -f 'agsbx/(s|x)' >/dev/null 2>&1; then echo '检测到系统可能中断过，或者变量格式错误？建议在SSH对话框输入 reboot 重启下服务器。现在自动执行节点恢复操作，请稍等……'; sleep 6; export cdnym=\"${cdnym}\" name=\"${name}\" ippz=\"${ippz}\" argo=\"${argo}\" uuid=\"${uuid}\" $wap=\"${warp}\" $xhp=\"${port_xh}\" $vxp=\"${port_vx}\" $ssp=\"${port_ss}\" $sop=\"${port_so}\" $anp=\"${port_an}\" $arp=\"${port_ar}\" $vlp=\"${port_vl_re}\" $vwp=\"${port_vw}\" $vmp=\"${port_vm_ws}\" $hyp=\"${port_hy2}\" $tup=\"${port_tu}\" reym=\"${ym_vl_re}\" agn=\"${ARGO_DOMAIN}\" agk=\"${ARGO_AUTH}\"; bash "$HOME/bin/agsbx"; fi" >> ~/.bashrc
 fi
 sed -i '/export PATH="\$HOME\/bin:\$PATH"/d' ~/.bashrc
 echo 'export PATH="$HOME/bin:$PATH"' >> "$HOME/.bashrc"
@@ -1093,9 +1094,9 @@ fi
 fi
 crontab /tmp/crontab.tmp >/dev/null 2>&1
 rm /tmp/crontab.tmp
-echo "进程启动成功，安装完毕" && sleep 2
+echo "脚本进程启动成功，安装完毕" && sleep 2
 else
-echo "进程未启动，安装失败" && exit
+echo "脚本进程未启动，安装失败" && exit
 fi
 if [ -n "$cfip" ]; then
 set -- $cfip
@@ -1120,9 +1121,9 @@ else
 echo "Xray：未启用"
 fi
 if echo "$procs" | grep -Eq 'agsbx/c' || pgrep -f 'agsbx/c' >/dev/null 2>&1; then
-echo "内核 (版本V$("$HOME/agsbx/cloudflared" version 2>/dev/null | awk '{print $3}'))：运行中"
+echo "Argo (版本V$("$HOME/agsbx/cloudflared" version 2>/dev/null | awk '{print $3}'))：运行中"
 else
-echo "内核：未启用"
+echo "Argo：未启用"
 fi
 }
 cip(){
@@ -1220,7 +1221,7 @@ short_id_s=$(cat "$HOME/agsbx/sbk/short_id" 2>/dev/null)
 sskey=$(cat "$HOME/agsbx/sskey" 2>/dev/null)
 fi
 if grep xhttp-reality "$HOME/agsbx/xr.json" >/dev/null 2>&1; then
-echo "💣【 Vless-xhttp-reality-enc 】支持ENC加密，节点信息如下："
+echo "【 Vless-xhttp-reality-enc 】支持ENC加密，节点信息如下："
 port_xh=$(cat "$HOME/agsbx/port_xh")
 vl_xh_link="vless://$uuid@$server_ip:$port_xh?encryption=$enkey&flow=xtls-rprx-vision&security=reality&sni=$ym_vl_re&fp=chrome&pbk=$public_key_x&sid=$short_id_x&type=xhttp&path=$uuid-xh&mode=auto#${sxname}vl-xhttp-reality-enc-$hostname"
 echo "$vl_xh_link" >> "$HOME/agsbx/jhsub.txt"
@@ -1228,14 +1229,14 @@ echo "$vl_xh_link"
 echo
 fi
 if grep vless-xhttp "$HOME/agsbx/xr.json" >/dev/null 2>&1; then
-echo "💣【 Vless-xhttp-enc 】支持ENC加密，节点信息如下："
+echo "【 Vless-xhttp-enc 】支持ENC加密，节点信息如下："
 port_vx=$(cat "$HOME/agsbx/port_vx")
 vl_vx_link="vless://$uuid@$server_ip:$port_vx?encryption=$enkey&flow=xtls-rprx-vision&type=xhttp&path=$uuid-vx&mode=auto#${sxname}vl-xhttp-enc-$hostname"
 echo "$vl_vx_link" >> "$HOME/agsbx/jhsub.txt"
 echo "$vl_vx_link"
 echo
 if [ -f "$HOME/agsbx/cdnym" ]; then
-echo "💣【 Vless-xhttp-ecn-cdn 】支持ENC加密，节点信息如下："
+echo "【 Vless-xhttp-ecn-cdn 】支持ENC加密，节点信息如下："
 echo "注：默认地址 yx8.991376.xyz 可自行更换优选IP域名，如是回源端口需手动修改443或者80系端口"
 vl_vx_cdn_link="vless://$uuid@yx8.991376.xyz:$port_vx?encryption=$enkey&flow=xtls-rprx-vision&type=xhttp&host=$xvvmcdnym&path=$uuid-vx&mode=auto#${sxname}vl-xhttp-enc-cdn-$hostname"
 echo "$vl_vx_cdn_link" >> "$HOME/agsbx/jhsub.txt"
@@ -1244,14 +1245,14 @@ echo
 fi
 fi
 if grep vless-ws "$HOME/agsbx/xr.json" >/dev/null 2>&1; then
-echo "💣【 Vless-ws-enc 】支持ENC加密，节点信息如下："
+echo "【 Vless-ws-enc 】支持ENC加密，节点信息如下："
 port_vw=$(cat "$HOME/agsbx/port_vw")
 vl_vw_link="vless://$uuid@$server_ip:$port_vw?encryption=$enkey&flow=xtls-rprx-vision&type=ws&path=$uuid-vw#${sxname}vl-ws-enc-$hostname"
 echo "$vl_vw_link" >> "$HOME/agsbx/jhsub.txt"
 echo "$vl_vw_link"
 echo
 if [ -f "$HOME/agsbx/cdnym" ]; then
-echo "💣【 Vless-ws-enc-cdn 】支持ENC加密，节点信息如下："
+echo "【 Vless-ws-enc-cdn 】支持ENC加密，节点信息如下："
 echo "注：默认地址 yx8.991376.xyz 可自行更换优选IP域名，如是回源端口需手动修改443或者80系端口"
 vl_vw_cdn_link="vless://$uuid@yx8.991376.xyz:$port_vw?encryption=$enkey&flow=xtls-rprx-vision&type=ws&host=$xvvmcdnym&path=$uuid-vw#${sxname}vl-ws-enc-cdn-$hostname"
 echo "$vl_vw_cdn_link" >> "$HOME/agsbx/jhsub.txt"
@@ -1260,7 +1261,7 @@ echo
 fi
 fi
 if grep reality-vision "$HOME/agsbx/xr.json" >/dev/null 2>&1; then
-echo "💣【 Vless-tcp-reality-vision 】节点信息如下："
+echo "【 Vless-tcp-reality-vision 】节点信息如下："
 port_vl_re=$(cat "$HOME/agsbx/port_vl_re")
 vl_link="vless://$uuid@$server_ip:$port_vl_re?encryption=none&flow=xtls-rprx-vision&security=reality&sni=$ym_vl_re&fp=chrome&pbk=$public_key_x&sid=$short_id_x&type=tcp&headerType=none#${sxname}vl-reality-vision-$hostname"
 echo "$vl_link" >> "$HOME/agsbx/jhsub.txt"
@@ -1317,7 +1318,7 @@ echo "- ${sxname}vless-reality-vision-$hostname"
 }
 fi
 if grep ss-2022 "$HOME/agsbx/sb.json" >/dev/null 2>&1; then
-echo "💣【 Shadowsocks-2022 】节点信息如下："
+echo "【 Shadowsocks-2022 】节点信息如下："
 port_ss=$(cat "$HOME/agsbx/port_ss")
 ss_link="ss://$(echo -n "2022-blake3-aes-128-gcm:$sskey@$server_ip:$port_ss" | base64 -w0)#${sxname}Shadowsocks-2022-$hostname"
 echo "$ss_link" >> "$HOME/agsbx/jhsub.txt"
@@ -1360,7 +1361,7 @@ echo "- ${sxname}Shadowsocks-2022-$hostname"
 }
 fi
 if grep vmess-xr "$HOME/agsbx/xr.json" >/dev/null 2>&1 || grep vmess-sb "$HOME/agsbx/sb.json" >/dev/null 2>&1; then
-echo "💣【 Vmess-ws 】节点信息如下："
+echo "【 Vmess-ws 】节点信息如下："
 port_vm_ws=$(cat "$HOME/agsbx/port_vm_ws")
 vm_link="vmess://$(echo "{ \"v\": \"2\", \"ps\": \"${sxname}vm-ws-$hostname\", \"add\": \"$server_ip\", \"port\": \"$port_vm_ws\", \"id\": \"$uuid\", \"aid\": \"0\", \"scy\": \"auto\", \"net\": \"ws\", \"type\": \"none\", \"host\": \"www.bing.com\", \"path\": \"/$uuid-vm\", \"tls\": \"\"}" | base64 -w0)"
 echo "$vm_link" >> "$HOME/agsbx/jhsub.txt"
@@ -1423,7 +1424,7 @@ clvmpt1(){
 echo "- ${sxname}vmess-ws-$hostname"
 }
 if [ -f "$HOME/agsbx/cdnym" ]; then
-echo "💣【 Vmess-ws-cdn 】节点信息如下："
+echo "【 Vmess-ws-cdn 】节点信息如下："
 echo "注：默认地址 yx8.991376.xyz 可自行更换优选IP域名，如是回源端口需手动修改443或者80系端口"
 vm_cdn_link="vmess://$(echo "{ \"v\": \"2\", \"ps\": \"${sxname}vm-ws-cdn-$hostname\", \"add\": \"yx8.991376.xyz\", \"port\": \"$port_vm_ws\", \"id\": \"$uuid\", \"aid\": \"0\", \"scy\": \"auto\", \"net\": \"ws\", \"type\": \"none\", \"host\": \"$xvvmcdnym\", \"path\": \"/$uuid-vm\", \"tls\": \"\"}" | base64 -w0)"
 echo "$vm_cdn_link" >> "$HOME/agsbx/jhsub.txt"
@@ -1432,7 +1433,7 @@ echo
 fi
 fi
 if grep anytls-sb "$HOME/agsbx/sb.json" >/dev/null 2>&1; then
-echo "💣【 AnyTLS 】节点信息如下："
+echo "【 AnyTLS 】节点信息如下："
 port_an=$(cat "$HOME/agsbx/port_an")
 an_link="anytls://$uuid@$server_ip:$port_an?insecure=1&allowInsecure=1#${sxname}anytls-$hostname"
 echo "$an_link" >> "$HOME/agsbx/jhsub.txt"
@@ -1480,7 +1481,7 @@ echo "- ${sxname}anytls-$hostname"
 }
 fi
 if grep anyreality-sb "$HOME/agsbx/sb.json" >/dev/null 2>&1; then
-echo "💣【 Any-Reality 】节点信息如下："
+echo "【 Any-Reality 】节点信息如下："
 port_ar=$(cat "$HOME/agsbx/port_ar")
 ar_link="anytls://$uuid@$server_ip:$port_ar?security=reality&sni=$ym_vl_re&fp=chrome&pbk=$public_key_s&sid=$short_id_s&type=tcp&headerType=none#${sxname}any-reality-$hostname"
 echo "$ar_link" >> "$HOME/agsbx/jhsub.txt"
@@ -1518,7 +1519,7 @@ echo "\"${sxname}any-reality-$hostname\","
 }
 fi
 if grep hy2-sb "$HOME/agsbx/sb.json" >/dev/null 2>&1; then
-echo "💣【 Hysteria2 】节点信息如下："
+echo "【 Hysteria2 】节点信息如下："
 port_hy2=$(cat "$HOME/agsbx/port_hy2")
 hy2_ports=$(iptables -t nat -nL --line 2>/dev/null | grep -w "$port_hy2" | awk '{print $8}' | sed 's/dpts://; s/dpt://' | tr '\n' ',' | sed 's/,$//')
 if [ -n "$hy2_ports" ] && [ -n "$hyjpt" ]; then
@@ -1581,7 +1582,7 @@ echo "- ${sxname}hysteria2-$hostname"
 }
 fi
 if grep tuic5-sb "$HOME/agsbx/sb.json" >/dev/null 2>&1; then
-echo "💣【 Tuic 】节点信息如下："
+echo "【 Tuic 】节点信息如下："
 port_tu=$(cat "$HOME/agsbx/port_tu")
 tuic5_link="tuic://$uuid:$uuid@$server_ip:$port_tu?congestion_control=bbr&udp_relay_mode=native&alpn=h3&sni=www.bing.com&insecure=1&allowInsecure=1&allow_insecure=1#${sxname}tuic-$hostname"
 echo "$tuic5_link" >> "$HOME/agsbx/jhsub.txt"
@@ -1637,7 +1638,7 @@ echo "- ${sxname}tuic5-$hostname"
 }
 fi
 if grep socks5-xr "$HOME/agsbx/xr.json" >/dev/null 2>&1 || grep socks5-sb "$HOME/agsbx/sb.json" >/dev/null 2>&1; then
-echo "💣【 Socks5 】客户端信息如下："
+echo "【 Socks5 】客户端信息如下："
 port_so=$(cat "$HOME/agsbx/port_so")
 echo "请配合其他应用内置代理使用，勿做节点直接使用"
 echo "客户端地址：$server_ip"
@@ -1651,7 +1652,7 @@ argodomain=$(cat "$HOME/agsbx/sbargoym.log" 2>/dev/null)
 if [ -n "$argodomain" ]; then
 vlvm=$(cat $HOME/agsbx/vlvm 2>/dev/null)
 if [ "$vlvm" = "Vmess" ]; then
-vmatls_link1="vmess://$(echo "{ \"v\": \"2\", \"ps\": \"${sxname}vmess-ws-tls-argo-$hostname-443\", \"add\": \"yx3.991376.xyz\", \"port\": \"443\", \"id\": \"$uuid\", \"aid\": \"0\", \"scy\": \"auto\", \"net\": \"ws\", \"type\": \"none\", \"host\": \"$argodomain\", \"path\": \"/$uuid-vm\", \"tls\": \"tls\", \"sni\": \"$argodomain\", \"alpn\": \"\", \"fp\": \"chrome\"}" | base64 -w0)"
+vmatls_link1="vmess://$(echo "{ \"v\": \"2\", \"ps\": \"${sxname}vmess-ws-tls-argo-$hostname-443\", \"add\": \"$cdnip1\", \"port\": \"443\", \"id\": \"$uuid\", \"aid\": \"0\", \"scy\": \"auto\", \"net\": \"ws\", \"type\": \"none\", \"host\": \"$argodomain\", \"path\": \"/$uuid-vm\", \"tls\": \"tls\", \"sni\": \"$argodomain\", \"alpn\": \"\", \"fp\": \"chrome\"}" | base64 -w0)"
 echo "$vmatls_link1" >> "$HOME/agsbx/jhsub.txt"
 vmatls_link2="vmess://$(echo "{ \"v\": \"2\", \"ps\": \"${sxname}vmess-ws-tls-argo-$hostname-8443\", \"add\": \"yx3.991376.xyz\", \"port\": \"8443\", \"id\": \"$uuid\", \"aid\": \"0\", \"scy\": \"auto\", \"net\": \"ws\", \"type\": \"none\", \"host\": \"$argodomain\", \"path\": \"/$uuid-vm\", \"tls\": \"tls\", \"sni\": \"$argodomain\", \"alpn\": \"\", \"fp\": \"chrome\"}" | base64 -w0)"
 echo "$vmatls_link2" >> "$HOME/agsbx/jhsub.txt"
@@ -1663,7 +1664,7 @@ vmatls_link5="vmess://$(echo "{ \"v\": \"2\", \"ps\": \"${sxname}vmess-ws-tls-ar
 echo "$vmatls_link5" >> "$HOME/agsbx/jhsub.txt"
 vmatls_link6="vmess://$(echo "{ \"v\": \"2\", \"ps\": \"${sxname}vmess-ws-tls-argo-$hostname-2096\", \"add\": \"[2606:4700::0]\", \"port\": \"2096\", \"id\": \"$uuid\", \"aid\": \"0\", \"scy\": \"auto\", \"net\": \"ws\", \"type\": \"none\", \"host\": \"$argodomain\", \"path\": \"/$uuid-vm\", \"tls\": \"tls\", \"sni\": \"$argodomain\", \"alpn\": \"\", \"fp\": \"chrome\"}" | base64 -w0)"
 echo "$vmatls_link6" >> "$HOME/agsbx/jhsub.txt"
-vma_link7="vmess://$(echo "{ \"v\": \"2\", \"ps\": \"${sxname}vmess-ws-argo-$hostname-80\", \"add\": \"yx2.991376.xyz\", \"port\": \"80\", \"id\": \"$uuid\", \"aid\": \"0\", \"scy\": \"auto\", \"net\": \"ws\", \"type\": \"none\", \"host\": \"$argodomain\", \"path\": \"/$uuid-vm\", \"tls\": \"\"}" | base64 -w0)"
+vma_link7="vmess://$(echo "{ \"v\": \"2\", \"ps\": \"${sxname}vmess-ws-argo-$hostname-80\", \"add\": \"$cdnip2\", \"port\": \"80\", \"id\": \"$uuid\", \"aid\": \"0\", \"scy\": \"auto\", \"net\": \"ws\", \"type\": \"none\", \"host\": \"$argodomain\", \"path\": \"/$uuid-vm\", \"tls\": \"\"}" | base64 -w0)"
 echo "$vma_link7" >> "$HOME/agsbx/jhsub.txt"
 vma_link8="vmess://$(echo "{ \"v\": \"2\", \"ps\": \"${sxname}vmess-ws-argo-$hostname-8080\", \"add\": \"yx2.991376.xyz\", \"port\": \"8080\", \"id\": \"$uuid\", \"aid\": \"0\", \"scy\": \"auto\", \"net\": \"ws\", \"type\": \"none\", \"host\": \"$argodomain\", \"path\": \"/$uuid-vm\", \"tls\": \"\"}" | base64 -w0)"
 echo "$vma_link8" >> "$HOME/agsbx/jhsub.txt"
@@ -1788,14 +1789,14 @@ if [ -n "$sbtk" ]; then
 nametn="Argo固定隧道token：$sbtk"
 fi
 argoshow=$(
-echo "隧道端口正在使用$vlvm-ws主协议端口：$(cat $HOME/agsbx/argoport.log 2>/dev/null)
-域名：$argodomain
+echo "Argo隧道端口正在使用$vlvm-ws主协议端口：$(cat $HOME/agsbx/argoport.log 2>/dev/null)
+Argo域名：$argodomain
 $nametn
 
-1、💣443端口节点
+1、443端口的$vlvm-ws-tls-argo节点(优选IP与443系端口随便换)
 ${vmatls_link1}${vwatls_link1}
 
-2、💣80端口节点
+2、80端口的$vlvm-ws-argo节点(优选IP与80系端口随便换)
 ${vma_link7}${vwa_link2}
 "
 )
@@ -2073,8 +2074,8 @@ showsubtoken=$(cat $HOME/agsbx/subtoken.log 2>/dev/null)
 subip=$(cat $HOME/agsbx/server_ip.log 2>/dev/null)
 suburl="$subip:$showsubport/$showsubtoken"
 echo "**********************************************************"
-echo "本地IP订阅地址：http://$suburl/clmi.yaml"
-echo "内核本地IP订阅地址：http://$suburl/sbox.json"
+echo "Clash/Mihomo本地IP订阅地址：http://$suburl/clmi.yaml"
+echo "Sing-box本地IP订阅地址：http://$suburl/sbox.json"
 echo "聚合协议本地IP订阅地址：http://$suburl/jhsub.txt"
 echo "**********************************************************"
 fi
@@ -2083,7 +2084,7 @@ echo
 echo "---------------------------------------------------------"
 echo "聚合节点信息，请进入 $HOME/agsbx/jhsub.txt 文件目录查看或者运行 cat $HOME/agsbx/jhsub.txt 查看"
 echo "========================================================="
-echo "相关快捷方式如下：(首次安装成功后需重连SSH才可生效)"
+echo "相关快捷方式如下：(首次安装成功后需重连SSH，agsbx快捷方式才可生效；如未生效，请使用主脚本)"
 showmode
 }
 cleandel(){
@@ -2141,15 +2142,14 @@ fi
 if [ "$1" = "del" ]; then
 cleandel
 rm -rf sbx_update "$HOME/agsbx" "$HOME/websbx"
-echo "卸载完成"
-echo "再见！💣" && sleep 2
+echo "卸载完成，再见！" && sleep 2
 echo
 showmode
 exit
 elif [ "$1" = "rep" ]; then
 cleandel
 rm -rf "$HOME/agsbx"/{sb.json,xr.json,sbargoym.log,sbargotoken.log,argo.log,argoport.log,cdnym,name}
-echo "重置完成，开始更新逻辑……" && sleep 2
+echo "重置协议完成，开始更新相关协议变量……" && sleep 2
 echo
 elif [ "$1" = "list" ]; then
 cip
@@ -2157,12 +2157,12 @@ exit
 elif [ "$1" = "upx" ]; then
 for P in /proc/[0-9]*; do [ -L "$P/exe" ] || continue; TARGET=$(readlink -f "$P/exe" 2>/dev/null) || continue; case "$TARGET" in *"/agsbx/x"*) kill "$(basename "$P")" 2>/dev/null ;; esac; done
 kill -15 $(pgrep -f 'agsbx/x' 2>/dev/null) >/dev/null 2>&1
-upxray && xrestart && echo "内核更新完成" && sleep 2 && cip
+upxray && xrestart && echo "Xray内核更新完成" && sleep 2 && cip
 exit
 elif [ "$1" = "ups" ]; then
 for P in /proc/[0-9]*; do [ -L "$P/exe" ] || continue; TARGET=$(readlink -f "$P/exe" 2>/dev/null) || continue; case "$TARGET" in *"/agsbx/s"*) kill "$(basename "$P")" 2>/dev/null ;; esac; done
 kill -15 $(pgrep -f 'agsbx/s' 2>/dev/null) >/dev/null 2>&1
-upsingbox && sbrestart && echo "内核更新完成" && sleep 2 && cip
+upsingbox && sbrestart && echo "Sing-box内核更新完成" && sleep 2 && cip
 exit
 elif [ "$1" = "res" ]; then
 for P in /proc/[0-9]*; do
@@ -2203,7 +2203,7 @@ kill -15 $(pgrep -f 'agsbx/s' 2>/dev/null) $(pgrep -f 'agsbx/c' 2>/dev/null) $(p
 if [ -z "$( (command -v curl >/dev/null 2>&1 && curl -s4m5 -k "$v46url" 2>/dev/null) || (command -v wget >/dev/null 2>&1 && timeout 3 wget -4 -qO- --tries=2 "$v46url" 2>/dev/null) )" ]; then
 echo -e "nameserver 2a00:1098:2b::1\nnameserver 2a00:1098:2c::1" > /etc/resolv.conf
 fi
-if [ -n "$( (command -v curl >/dev/null 2>&1 && curl -s6m5 -k "$v46url" 2>/dev/null) || (command -v wget >/dev/null 2>&1 && timeout 3 wget -6 --tries=2 "$v46url" 2>/dev/null) )" ]; then
+if [ -n "$( (command -v curl >/dev/null 2>&1 && curl -s6m5 -k "$v46url" 2>/dev/null) || (command -v wget >/dev/null 2>&1 && timeout 3 wget -6 -qO- --tries=2 "$v46url" 2>/dev/null) )" ]; then
 sendip="2606:4700:d0::a29f:c001"
 xendip="[2606:4700:d0::a29f:c001]"
 else
@@ -2212,7 +2212,7 @@ xendip="162.159.192.1"
 fi
 echo "VPS系统：$op"
 echo "CPU架构：$cpu"
-echo "开始安装…………" && sleep 1
+echo "脚本未安装，开始安装…………" && sleep 1
 if [ -n "$oap" ]; then
 setenforce 0 >/dev/null 2>&1
 iptables -P INPUT ACCEPT >/dev/null 2>&1
@@ -2274,11 +2274,11 @@ echo '@reboot sleep 10 && /bin/bash -c "busybox httpd -f -p $(cat $HOME/agsbx/su
 crontab /tmp/crontab.tmp >/dev/null 2>&1
 rm /tmp/crontab.tmp
 fi
-echo "本地订阅链接已更新"
+echo "本地IP订阅链接已更新完成"
 fi
 if [ -n "$hyjpt" ] && [ -n "$hyp" ]; then
 echo
-echo "设置跳跃端口：$hyjpt"
+echo "设置Hysteria2协议的跳跃端口：$hyjpt"
 iptables -t nat -F PREROUTING >/dev/null 2>&1
 ip6tables -t nat -F PREROUTING >/dev/null 2>&1
 hyport=$(cat "$HOME/agsbx/port_hy2")
