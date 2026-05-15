@@ -5,7 +5,7 @@
 <img width="757" height="255" alt="d89e2542c513e705106371acc7fa1d33" src="https://github.com/user-attachments/assets/7d7a4678-4223-478c-afe2-d303ba0f85a4" />
 
 
-### 【Argosbx当前版本：V25.11.20】
+### 【Argosbx当前版本：V26.05.10】
 
 ---------------------------------------
 
@@ -24,37 +24,40 @@
 Hiddify v4.1.1
 电脑win客户端：[V2rayN官方版(全协议支持)](https://github.com/2dust/v2rayN/releases)
 Hiddify v4.1.1
-苹果IOS客户端：Happ、OneXray、Streisand,Hiddify v4.1.1
+苹果IOS客户端：Happ、OneXray、Streisand,Hiddify.v4.1.1
 
 ----------------------------------------------------------
 
-## 一、自定义变量参数说明：
+一、自定义参数参数说明：
+变量意义	指标名称	在变量值""之间填写	删除指标	在变量值""之间留空	指标要求及说明
+1、启用vless-tcp-reality-v	vlpt	端口指定	关闭vless-tcp-reality-v	端口随机	必选之一【xray内核：TCP】
+2、启用vless-xhttp-reality-enc	xhpt	端口指定	关闭vless-xhttp-reality-enc	端口随机	必选之一【xray内核：TCP】
+3、启用vless-xhttp-enc	vxpt	端口指定	关闭vless-xhttp-enc	端口随机	必选之一【xray内核：TCP】
+4、启用vless-ws-enc	vwpt	端口指定	关闭vless-ws-enc	端口随机	必选之一【xray内核：TCP】
+5、启用shadowsocks-2022	sspt	端口指定	关闭shadowsocks-2022	端口随机	必选之一【singbox内核：TCP】
+6、启用anytls	安普	端口指定	关闭任何tls	端口随机	必选之一【singbox内核：TCP】
+7、启用任意现实	机场	端口指定	关闭任何现实	端口随机	必选之一【singbox内核：TCP】
+8、启用vmess-ws	vmpt	端口指定	关闭vmess-ws	端口随机	必选之一【xray/singbox内核：TCP】
+9、启用socks5	sopt	端口指定	关闭socks5	端口随机	必选之一【xray/singbox内核：TCP】
+10、启用歇斯底里2	催眠	端口指定	关闭hy2	端口随机	必选之一 【singbox内核：UDP】
+11、启用tuic	tupt	端口指定	关闭图克	端口随机	必选之一 【singbox内核：UDP】
+12、曲速开关	经	参见下方15种warp出站模式图	关闭扭曲	singbox与xray内核协议都启用warp全局V4+V6	任选，参见下方15种经出站模式图
+13、阿尔戈开关	阿尔戈	填写vwpt或者vmpt	关闭阿尔戈隧道	关闭阿尔戈隧道	可选，填写vmpt或vwpt时，vmess-ws或vless-ws变量vmpt或vwpt必须启用，且固定隧道必须填写vmpt或vwpt端口
+14、argo固定隧道域名	agn	托管在CF的域名上	使用临时隧道	使用临时隧道	任选，argo填写vmpt或vwpt时才可激活固定隧道
+15、argo固定隧道代币	agk	CF获取他们底层的token	使用临时隧道	使用临时隧道	任选，argo填写vmpt或vwpt时才可激活固定隧道
+16、uuid密码	UUID	符合uuid规定格式	随机生成	随机生成	任选
+17、现实域名（仅支持现实类协议）	雷姆	符合现实域名规定	苹果官网	苹果官网	可选，使用CF类域名时：服务器ip:节点端口的组合，可作为ProxyIP/客户端地址反代IP（建议高位端口或纯IPV6下使用，被盗刷）
+18、vmess-ws、vless-xhttp/ws-enc在客户端的主机地址	cdnym	CF解析IP的域名	vmess-ws、vless-xhttp/ws-enc为直连	vmess-ws、vless-xhttp/ws-enc为直连	可选，使用80系CDN或者回源CDN时可设置，否则客户端主机地址需手动更改为CF解析IP的域名
+19、切换ipv4或ipv6配置	ippz	填写4或者6	自动识别IP配置	自动识别IP配置	任选，4表示IPV4配置输出，6表示IPV6配置输出
+20、添加所有节点名称左侧	姓名	任何人物	默认协议名出口	默认协议名出口	任选
+21、开启IP订阅链接	子	潘米	关闭IP订阅链接	关闭IP订阅链接	任选
+22、IP订阅链接密码	子标识	任何人物	UUID	UUID	任选
+23、IP订阅链接端口	子部分	端口指定	随机端口	随机端口	任选
+24、argo优选IP域名	cfip	填写IPV4或者[IPV6]或者域名	默认优选域名	默认优选域名	任选，IP域名之间留空格，只能填写两个
+25、hysteria2端口跳跃	hyjpt	范围端口或者单端口或者一起混用	关闭端口跳转	关闭端口跳转	可选，范围端口格式为小数字:大数字，每组端口之间留空格
+26、【仅容器类docker】监听端口，网页查询	港口	端口指定	3000	3000	任选
+27、【仅容器类docker】启用vless-ws-tls	领域	服务器域名	关闭vless-ws-tls	关闭vless-ws-tls	任选，vless-ws-tls可独立存在，uuid变量必须启用
 
-| 变量意义 | 变量名称| 在变量值""之间填写| 删除变量 | 在变量值""之间留空 | 变量要求及说明 |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| 1、启用vless-tcp-reality-v | vlpt | 端口指定 | 关闭vless-tcp-reality-v | 端口随机 | 必选之一 【xray内核：TCP】 |
-| 2、启用vless-xhttp-reality-enc | xhpt | 端口指定 | 关闭vless-xhttp-reality-enc | 端口随机 | 必选之一 【xray内核：TCP】 |
-| 3、启用vless-xhttp-enc | vxpt | 端口指定 | 关闭vless-xhttp-enc | 端口随机 | 必选之一 【xray内核：TCP】 |
-| 4、启用vless-ws-enc | vwpt | 端口指定 | 关闭vless-ws-enc | 端口随机 | 必选之一 【xray内核：TCP】 |
-| 5、启用shadowsocks-2022 | sspt | 端口指定 | 关闭shadowsocks-2022 | 端口随机 | 必选之一 【singbox内核：TCP】 |
-| 6、启用anytls | anpt | 端口指定 | 关闭anytls | 端口随机 | 必选之一 【singbox内核：TCP】 |
-| 7、启用any-reality | arpt | 端口指定 | 关闭any-reality | 端口随机 | 必选之一 【singbox内核：TCP】 |
-| 8、启用vmess-ws | vmpt | 端口指定 | 关闭vmess-ws | 端口随机 | 必选之一 【xray/singbox内核：TCP】 |
-| 9、启用socks5 | sopt | 端口指定 | 关闭socks5 | 端口随机 | 必选之一 【xray/singbox内核：TCP】 |
-| 10、启用hysteria2 | hypt | 端口指定 | 关闭hy2 | 端口随机 | 必选之一 【singbox内核：UDP】 |
-| 11、启用tuic | tupt | 端口指定 | 关闭tuic | 端口随机 | 必选之一 【singbox内核：UDP】 |
-| 12、warp开关 | warp | 详见下方15种warp出站模式图 | 关闭warp | singbox与xray内核协议都启用warp全局V4+V6 | 可选，详见下方15种warp出站模式图 |
-| 13、argo开关 | argo | 填写vwpt或者vmpt | 关闭argo隧道 | 关闭argo隧道 | 可选，填写vmpt或vwpt时，vmess-ws或vless-ws变量vmpt或vwpt必须启用，且固定隧道必须填写vmpt或vwpt端口 |
-| 14、argo固定隧道域名 | agn | 托管在CF上的域名 | 使用临时隧道 | 使用临时隧道 | 可选，argo填写vmpt或vwpt时才可激活固定隧道|
-| 15、argo固定隧道token | agk | CF获取的ey开头的token | 使用临时隧道 | 使用临时隧道 | 可选，argo填写vmpt或vwpt时才可激活固定隧道 |
-| 16、uuid密码 | uuid | 符合uuid规定格式 | 随机生成 | 随机生成 | 可选 |
-| 17、reality域名（仅支持reality类协议） | reym | 符合reality域名规定 | apple官网 | apple官网 | 可选，使用CF类域名时：服务器ip:节点端口的组合，可作为ProxyIP/客户端地址反代IP（建议高位端口或纯IPV6下使用，以防被扫泄露）|
-| 18、vmess-ws、vless-xhttp/ws-enc在客户端的host地址 | cdnym | CF解析IP的域名 | vmess-ws、vless-xhttp/ws-enc为直连 | vmess-ws、vless-xhttp/ws-enc为直连 | 可选，使用80系CDN或者回源CDN时可设置，否则客户端host地址需手动更改为CF解析IP的域名|
-| 19、切换ipv4或ipv6配置 | ippz | 填写4或者6 | 自动识别IP配置 | 自动识别IP配置 | 可选，4表示IPV4配置输出，6表示IPV6配置输出 |
-| 20、添加所有节点名称前缀 | name | 任意字符 | 默认协议名前缀 | 默认协议名前缀 | 可选 |
-| 21、当前系统开放所有端口 | oap | 填写y | 禁止开放所有端口 | 禁止开放所有端口 | 可选，开启运行一次即可，后续删除变量，没必要每次运行 |
-| 22、【仅容器类docker】监听端口，网页查询 | PORT | 端口指定 | 3000 | 3000 | 可选 |
-| 23、【仅容器类docker】启用vless-ws-tls | DOMAIN | 服务器域名 | 关闭vless-ws-tls | 关闭vless-ws-tls | 可选，vless-ws-tls可独立存在，uuid变量必须启用 |
 
 ------------------------------------------------------------------
 
