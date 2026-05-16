@@ -50,14 +50,11 @@ export warp=${warp:-''}
 export name=${name:-''}
 export oap=${oap:-''}
 v46url="https://icanhazip.com"
-agsbxurl="https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh"
+agsbxurl="https://raw.githubusercontent.com/skyroad19981001-hue/argoasbx1/main/argosbx.sh"
 showmode(){
-echo "显示节点信息命令：agsbx list"
-echo "重置变量组命令：agsbx rep"
-echo "更新Xray或Singbox内核命令：agsbx upx或ups"
-echo "重启脚本命令：agsbx res"
+echo "显示节点信息命令：cat /root/agsbx/jhsub.txt"
+echo "重置变量组命令：脚本 rep"
 echo "卸载脚本命令：agsbx del"
-echo "双栈VPS显示IPv4/IPv6节点配置命令：ippz=4或6 agsbx list"
 echo "---------------------------------------------------------"
 echo
 }
