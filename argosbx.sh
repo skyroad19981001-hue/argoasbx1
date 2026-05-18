@@ -1,8 +1,8 @@
 #!/bin/sh
 export LANG=en_US.UTF-8
 [ -z "${vlpt+x}" ] || vlp=yes
-[ -z "${vmpt+x}" ] || { vmp=yes; vmag=yes; }
-[ -z "${vwpt+x}" ] || { vwp=yes; vmag=yes; }
+[ -z "${vmpt+x}" ] || vmp=yes
+[ -z "${vwpt+x}" ] || vwp=yes
 [ -z "${hypt+x}" ] || hyp=yes
 [ -z "${tupt+x}" ] || tup=yes
 [ -z "${xhpt+x}" ] || xhp=yes
