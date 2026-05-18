@@ -163,36 +163,6 @@ chmod +x "$HOME/agsbx/xray"
 sbcore=$("$HOME/agsbx/xray" version 2>/dev/null | awk '/^Xray/{print $2}')
 echo "已安装Xray正式版内核：$sbcore"
 }
-upsingbox(){
-  SB_VER="1.13.12"
-  arch=$(uname -m)
-  case "$arch" in
-      x86_64) pkg_cpu="linux-amd64" ;;
-      aarch64) pkg_cpu="linux-arm64" ;;
-      *) echo "不支持的架构: $arch" && exit 1 ;;
-  esac
-  
-  url="https://github.com/SagerNet/sing-box/releases/download/v${SB_VER}/sing-box-${SB_VER}-${pkg_cpu}.tar.gz"
-  out="$HOME/agsbx/sing-box.tar.gz"
-  
-  mkdir -p $HOME/agsbx
-  echo "正在从官方下载 Sing-box v${SB_VER}..."
-  (command -v curl >/dev/null 2>&1 && curl -Lo "$out" -# --retry 2 "$url") || (command -v wget >/dev/null 2>&1 && timeout 15 wget -O "$out" --tries=2 "$url")
-  
-  if [ -f "$out" ]; then
-    tar -zxf "$out" -C "$HOME/agsbx" --strip-components=1 "sing-box-${SB_VER}-${pkg_cpu}/sing-box"
-    rm -f "$out"
-    chmod +x "$HOME/agsbx/sing-box"
-    sbcore=$("$HOME/agsbx/sing-box" version 2>/dev/null | awk '/version/{print $NF}')
-    echo "已成功更新至官方 Sing-box 内核：$sbcore"
-
-}
-#upsingbox(){
-#url="https://github.com/yonggekkk/argosbx/releases/download/argosbx/sing-box-$cpu"; out="$HOME/agsbx/sing-box"; #(command -v curl>/dev/null 2>&1 && curl -Lo "$out" -# --retry 2 "$url") || (command -v wget>/dev/null 2>&1 && timeout 3 #wget -O "$out" --tries=2 "$url")
-#chmod +x "$HOME/agsbx/sing-box"
-#sbcore=$("$HOME/agsbx/sing-box" version 2>/dev/null | awk '/version/{print $NF}')
-#echo "已安装Sing-box正式版内核：$sbcore"
-}
 insuuid(){
 if [ -z "$uuid" ] && [ ! -e "$HOME/agsbx/uuid" ]; then
 if [ -e "$HOME/agsbx/sing-box" ]; then
