@@ -1104,8 +1104,8 @@ set -- $cfip
 cdnip1="$1"
 cdnip2="$2"
 else
-cdnip1="yg1.ygkkk.dpdns.org"
-cdnip2="yg6.ygkkk.dpdns.org"
+cdnip1="yx3.991376.xyz"
+cdnip2="yx8.991376.xyz"
 fi
 }
 argosbxstatus(){
