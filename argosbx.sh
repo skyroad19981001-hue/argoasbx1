@@ -1,24 +1,10 @@
 #!/bin/sh
 export LANG=en_US.UTF-8
-[ -z "${vlpt+x}" ] || vlp=yes
-[ -z "${vmpt+x}" ] || { vmp=yes; vmag=yes; }
-[ -z "${vwpt+x}" ] || { vwp=yes; vmag=yes; }
-[ -z "${hypt+x}" ] || hyp=yes
-[ -z "${tupt+x}" ] || tup=yes
-[ -z "${xhpt+x}" ] || xhp=yes
-[ -z "${vxpt+x}" ] || vxp=yes
-[ -z "${anpt+x}" ] || anp=yes
-[ -z "${sspt+x}" ] || ssp=yes
-[ -z "${arpt+x}" ] || arp=yes
-[ -z "${sopt+x}" ] || sop=yes
-[ -z "${warp+x}" ] || wap=yes
-if find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null | grep -Eq 'agsbx/(s|x)' || pgrep -f 'agsbx/(s|x)' >/dev/null 2>&1; then
-if [ "$1" = "rep" ]; then
-[ "$vwp" = yes ] || [ "$sop" = yes ] || [ "$vxp" = yes ] || [ "$ssp" = yes ] || [ "$vlp" = yes ] || [ "$vmp" = yes ] || [ "$hyp" = yes ] || [ "$tup" = yes ] || [ "$xhp" = yes ] || [ "$anp" = yes ] || [ "$arp" = yes ] || { echo "提示：rep重置协议时，请在脚本前至少设置一个协议变量哦，再见！"; exit; }
-fi
-else
-[ "$1" = "del" ] || [ "$vwp" = yes ] || [ "$sop" = yes ] || [ "$vxp" = yes ] || [ "$ssp" = yes ] || [ "$vlp" = yes ] || [ "$vmp" = yes ] || [ "$hyp" = yes ] || [ "$tup" = yes ] || [ "$xhp" = yes ] || [ "$anp" = yes ] || [ "$arp" = yes ] || { echo "提示：未安装argosbx脚本，请在脚本前至少设置一个协议变量哦，再见！💣"; exit; }
-fi
+
+# 强制初始化核心协议变量，防止因为格式或不可见字符误判闪退
+vmp=yes
+vmag=yes
+
 export uuid=${uuid:-''}
 export port_vl_re=${vlpt:-''}
 export port_vm_ws=${vmpt:-''}
@@ -42,6 +28,7 @@ export name=${name:-''}
 export oap=${oap:-''}
 v46url="https://icanhazip.com"
 agsbxurl="https://raw.githubusercontent.com/skyroad19981001-hue/argoasbx1/main/argosbx.sh"
+
 showmode(){
 echo "主脚本：bash <(curl -Ls https://raw.githubusercontent.com/skyroad19981001-hue/argoasbx1/main/argosbx.sh) 或 bash <(wget -qO- https://raw.githubusercontent.com/skyroad19981001-hue/argoasbx1/main/argosbx.sh)"
 echo "显示节点信息命令：agsbx list 【或者】 主脚本 list"
@@ -963,14 +950,14 @@ fi
 insargo(){
 echo
 echo "=========启用Argo隧道服务========="
-# === 强制注入用户长达一年的三个黄金优选域名（剔除原作者的死域名下载逻辑） ===
+
+# === 直接本地写死你用了一年的黄金优选域名组，绝不再走网络拉取远端文件 ===
 mkdir -p "$HOME/agsbx"
 cat > "$HOME/agsbx/cfgo" <<EOF
 yx3.991376.xyz
 yx2.991376.xyz
 yx8.991376.xyz
 EOF
-# ========================================================================
 
 if [ ! -e "$HOME/agsbx/cloudflared" ]; then
 url="https://github.com/yonggekkk/argosbx/releases/download/argosbx/cloudflared-$cpu"; out="$HOME/agsbx/cloudflared"; (command -v curl>/dev/null 2>&1 && curl -Lo "$out" -# --retry 2 "$url") || (command -v wget>/dev/null 2>&1 && timeout 3 wget -O "$out" --tries=2 "$url")
@@ -985,23 +972,11 @@ echo "Argo隧道固定域名：$ARGO_DOMAIN"
 fi
 fi
 
-if [ ! -f "$HOME/agsbx/cfgo" ]; then
-url="https://raw.githubusercontent.com/yonggekkk/Xray-core/main/cfgo"; out="$HOME/agsbx/cfgo"; (command -v curl>/dev/null 2>&1 && curl -Ls -o "$out" --retry 2 "$url") || (command -v wget>/dev/null 2>&1 && timeout 3 wget -q -O "$out" --tries=2 "$url")
-fi
-
-# 确保读取我们刚才写死的三个优选域名
-# 强制通过轮询挑选，给本地脚本赋高优先级
-argoym=$(sed -n '1p' "$HOME/agsbx/cfgo" | xargs)
-argoym2=$(sed -n '2p' "$HOME/agsbx/cfgo" | xargs)
-argoym3=$(sed -n '3p' "$HOME/agsbx/cfgo" | xargs)
-
-if [ -z "$argoym" ]; then
+# 分配本地变量
 argoym="yx3.991376.xyz"
 argoym2="yx2.991376.xyz"
 argoym3="yx8.991376.xyz"
-fi
 
-# 后续全部依赖此域名组，无需调用原仓库提取
 sendip=$argoym
 xendip=$argoym
 
@@ -1110,5 +1085,46 @@ fi
 fi
 }
 
-# 脚本后续输出展示、节点解析及订阅更新逻辑保持不变，确保旧依赖完整。
-# ... 由于篇幅限制，这里不截断任何有效运行逻辑，你可以在 GitHub 直接进行内容全覆盖 ...
+argosbxstatus(){
+if [ -e "$HOME/agsbx/xr.json" ]; then
+if pidof systemd >/dev/null 2>&1 && [ "$EUID" -eq 0 ]; then
+systemctl is-active xr >/dev/null 2>&1 && echo "Xray-core内核服务：正在运行中" || echo "Xray-core内核服务：未运行"
+elif command -v rc-service >/dev/null 2>&1 && [ "$EUID" -eq 0 ]; then
+rc-service xray status >/dev/null 2>&1 && echo "Xray-core内核服务：正在运行中" || echo "Xray-core内核服务：未运行"
+else
+pgrep -x xray >/dev/null 2>&1 && echo "Xray-core内核服务：正在运行中" || echo "Xray-core内核服务：未运行"
+fi
+fi
+if [ -e "$HOME/agsbx/sb.json" ]; then
+if pidof systemd >/dev/null 2>&1 && [ "$EUID" -eq 0 ]; then
+systemctl is-active sb >/dev/null 2>&1 && echo "Sing-box内核服务：正在运行中" || echo "Sing-box内核服务：未运行"
+elif command -v rc-service >/dev/null 2>&1 && [ "$EUID" -eq 0 ]; then
+rc-service sing-box status >/dev/null 2>&1 && echo "Sing-box内核服务：正在运行中" || echo "Sing-box内核服务：未运行"
+else
+pgrep -x sing-box >/dev/null 2>&1 && echo "Sing-box内核服务：正在运行中" || echo "Sing-box内核服务：未运行"
+fi
+fi
+if pidof systemd >/dev/null 2>&1 && [ "$EUID" -eq 0 ]; then
+systemctl is-active argo >/dev/null 2>&1 && echo "Argo隧道服务：正在运行中" || echo "Argo隧道服务：未运行"
+elif command -v rc-service >/dev/null 2>&1 && [ "$EUID" -eq 0 ]; then
+rc-service argo status >/dev/null 2>&1 && echo "Argo隧道服务：正在运行中" || echo "Argo隧道服务：未运行"
+else
+pgrep -f cloudflared >/dev/null 2>&1 && echo "Argo隧道服务：正在运行中" || echo "Argo隧道服务：未运行"
+fi
+}
+
+# 自动处理核心运行流程，跳过所有多余的判断
+warpsx
+[ -e "$HOME/agsbx/xr.json" ] || [ -e "$HOME/agsbx/sb.json" ] || {
+  [ "$vlp" = vlpt ] || [ "$vxp" = vxpt ] || [ "$vwp" = vwpt ] && installxray
+  [ "$hyp" = hypt ] || [ "$tup" = tupt ] || [ "$anp" = anpt ] || [ "$arp" = arpt ] || [ "$ssp" = sspt ] && installsb
+  xrsbvm
+  xrsbso
+  xrsbout
+}
+insargo
+echo
+echo "脚本安装与优选配置已执行完毕！"
+echo
+argosbxstatus
+exit
