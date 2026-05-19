@@ -465,9 +465,7 @@ fi
 installsb(){
 echo
 echo "=========启用Sing-box内核========="
-if [ ! -e "$HOME/agsbx/sing-box" ]; then
 upsingbox
-fi
 cat > "$HOME/agsbx/sb.json" <<EOF
 {
 "log": {
