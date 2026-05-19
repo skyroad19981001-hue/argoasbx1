@@ -159,10 +159,47 @@ sbcore=$("$HOME/agsbx/xray" version 2>/dev/null | awk '/^Xray/{print $2}')
 echo "已安装Xray正式版内核：$sbcore"
 }
 upsingbox(){
-url="https://github.com/yonggekkk/argosbx/releases/download/argosbx/sing-box-$cpu"; out="$HOME/agsbx/sing-box"; (command -v curl>/dev/null 2>&1 && curl -Lo "$out" -# --retry 2 "$url") || (command -v wget>/dev/null 2>&1 && timeout 3 wget -O "$out" --tries=2 "$url")
-chmod +x "$HOME/agsbx/sing-box"
+# 从官方获取最新版本号
+sbx_latest=$( (command -v curl >/dev/null 2>&1 && curl -sm10 https://api.github.com/repos/SagerNet/sing-box/releases/latest) || (command -v wget >/dev/null 2>&1 && timeout 10 wget -qO- https://api.github.com/repos/SagerNet/sing-box/releases/latest) | grep '"tag_name"' | head -1 | sed 's/.*"tag_name": *"v*\([^"]*\)".*/\1/' )
+if [ -z "$sbx_latest" ]; then
+  echo "警告：无法获取Sing-box官方最新版本号，跳过更新，继续使用当前版本"
+  return 0
+fi
+sbx_current=$("$HOME/agsbx/sing-box" version 2>/dev/null | awk '/version/{print $NF}')
+if [ -n "$sbx_current" ] && [ "$sbx_current" = "$sbx_latest" ]; then
+  echo "Sing-box已是最新版本：$sbx_current，无需更新"
+  sbcore="$sbx_current"
+  return 0
+fi
+echo "Sing-box当前版本：${sbx_current:-未安装}，最新版本：$sbx_latest，开始下载……"
+case "$cpu" in
+  amd64) sbx_arch="amd64" ;;
+  arm64) sbx_arch="arm64" ;;
+  *) echo "不支持的架构：$cpu" && return 1 ;;
+esac
+url="https://github.com/SagerNet/sing-box/releases/download/v${sbx_latest}/sing-box-${sbx_latest}-linux-${sbx_arch}.tar.gz"
+out_tar="/tmp/sing-box-latest.tar.gz"
+out="$HOME/agsbx/sing-box"
+( command -v curl >/dev/null 2>&1 && curl -Lo "$out_tar" -# --retry 2 "$url" ) || \
+( command -v wget >/dev/null 2>&1 && wget -O "$out_tar" --tries=2 "$url" )
+if [ ! -s "$out_tar" ]; then
+  echo "警告：Sing-box下载失败，继续使用当前版本"
+  rm -f "$out_tar"
+  return 0
+fi
+tar -xzf "$out_tar" -C /tmp/ 2>/dev/null
+extracted=$(find /tmp -maxdepth 2 -name "sing-box" -type f 2>/dev/null | head -1)
+if [ -z "$extracted" ]; then
+  echo "警告：Sing-box解压失败，继续使用当前版本"
+  rm -f "$out_tar"
+  return 0
+fi
+mv "$extracted" "$out"
+chmod +x "$out"
+rm -f "$out_tar"
+find /tmp -maxdepth 1 -name "sing-box-*" -type d 2>/dev/null | xargs rm -rf
 sbcore=$("$HOME/agsbx/sing-box" version 2>/dev/null | awk '/version/{print $NF}')
-echo "已安装Sing-box正式版内核：$sbcore"
+echo "已安装Sing-box官方正式版内核：$sbcore"
 }
 insuuid(){
 if [ -z "$uuid" ] && [ ! -e "$HOME/agsbx/uuid" ]; then
@@ -1103,9 +1140,11 @@ if [ -n "$cfip" ]; then
 set -- $cfip
 cdnip1="$1"
 cdnip2="$2"
+cdnip3="$3"
 else
 cdnip1="yx3.991376.xyz"
 cdnip2="yx8.991376.xyz"
+cdnip3="yx2.991376.xyz"
 fi
 }
 argosbxstatus(){
