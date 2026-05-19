@@ -160,7 +160,7 @@ echo "已安装Xray正式版内核：$sbcore"
 }
 upsingbox(){
 # 从官方 GitHub API 获取最新 stable 版本号，统一去掉 v 前缀
-sbx_latest=$( (command -v curl >/dev/null 2>&1 && curl -sm10 https://api.github.com/repos/SagerNet/sing-box/releases/latest) || (command -v wget >/dev/null 2>&1 && timeout 10 wget -qO- https://api.github.com/repos/SagerNet/sing-box/releases/latest) | grep '"tag_name"' | head -1 | sed 's/.*"tag_name"[[:space:]]*:[[:space:]]*"v*\([^"]*\)".*/\1/' )
+sbx_latest=$( (command -v curl >/dev/null 2>&1 && curl -sm10 https://api.github.com/repos/SagerNet/sing-box/releases/latest </dev/null) || (command -v wget >/dev/null 2>&1 && timeout 10 wget -qO- https://api.github.com/repos/SagerNet/sing-box/releases/latest </dev/null) | grep '"tag_name"' | head -1 | sed 's/.*"tag_name"[[:space:]]*:[[:space:]]*"v*\([^"]*\)".*/\1/' )
 if [ -z "$sbx_latest" ]; then
   echo "警告：无法获取Sing-box官方最新版本号，跳过更新，继续使用当前版本"
   return 0
@@ -182,8 +182,8 @@ url="https://github.com/SagerNet/sing-box/releases/download/v${sbx_latest}/sing-
 out_tar="/tmp/sing-box-latest.tar.gz"
 out="$HOME/agsbx/sing-box"
 rm -f "$out_tar"
-( command -v curl >/dev/null 2>&1 && curl -Lo "$out_tar" -# --retry 2 "$url" ) || \
-( command -v wget >/dev/null 2>&1 && wget -O "$out_tar" --tries=2 "$url" )
+( command -v curl >/dev/null 2>&1 && curl -Lo "$out_tar" -# --retry 2 "$url" </dev/null) || \
+( command -v wget >/dev/null 2>&1 && wget -O "$out_tar" --tries=2 "$url" </dev/null)
 if [ ! -s "$out_tar" ]; then
   echo "警告：Sing-box下载失败，继续使用当前版本"
   rm -f "$out_tar"
