@@ -3,7 +3,7 @@
 ---------------------------------------
 
 #### 1、基于Sing-box + Xray + Cloudflared-Argo 三内核自动分配
-
+Sing-box + Xray + Cloudflared-Argo三内核从官方源拉取.非第三方
 #### 2、支持Linux类主流VPS系统（建议最新版系统），SSH脚本支持非root环境运行。
 #### 3、客户端支持方面，各类单协议分享、clash/mihomo/singbox聚合订阅分享都可支持
 
