@@ -185,7 +185,7 @@ case "$cpu" in
   arm64) xray_arch="arm64-v8a" ;;
   *) echo "不支持的架构：$cpu" && return 1 ;;
 esac
-xray_url="https://github.com/XTLS/Xray-core/releases/download/v26.7.28/Xray-linux-mips64.zip"
+xray_url="https://github.com/XTLS/Xray-core/releases/download/v${xray_latest}/Xray-linux-${xray_arch}.zip"
 out_zip="/tmp/xray-latest.zip"
 out="$HOME/agsbx/xray"
 rm -f "$out_zip"
