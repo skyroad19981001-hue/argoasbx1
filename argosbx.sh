@@ -36,6 +36,7 @@ export cdnym=${cdnym:-''}
 export argo=${argo:-''}
 export ARGO_DOMAIN=${agn:-''}
 export ARGO_AUTH=${agk:-''}
+export agqc=${agqc:-''}
 export ippz=${ippz:-''}
 export warp=${warp:-''}
 export name=${name:-''}
@@ -1122,6 +1123,7 @@ url="https://github.com/cloudflare/cloudflared/releases/latest/download/cloudfla
 chmod +x "$HOME/agsbx/cloudflared"
 fi
 if [ "$argo" = "vmpt" ]; then argoport=$(cat "$HOME/agsbx/port_vm_ws" 2>/dev/null); echo "Vmess" > "$HOME/agsbx/vlvm"; elif [ "$argo" = "vwpt" ]; then argoport=$(cat "$HOME/agsbx/port_vw" 2>/dev/null); echo "Vless" > "$HOME/agsbx/vlvm"; elif [ "$argo" = "vxpt" ]; then argoport=$(cat "$HOME/agsbx/port_vx" 2>/dev/null); echo "Vlessxh" > "$HOME/agsbx/vlvm"; fi; echo "$argoport" > "$HOME/agsbx/argoport.log"
+if [ "$agqc" = "quic" ]; then argoproto=quic; else argoproto=http2; fi; echo "$argoproto" > "$HOME/agsbx/argoproto"
 if [ -n "${ARGO_DOMAIN}" ] && [ -n "${ARGO_AUTH}" ]; then
 argoname='固定'
 if pidof systemd >/dev/null 2>&1 && [ "$EUID" -eq 0 ]; then
@@ -1133,7 +1135,7 @@ After=network.target
 Type=simple
 NoNewPrivileges=yes
 TimeoutStartSec=0
-ExecStart=/root/agsbx/cloudflared tunnel --no-autoupdate --edge-ip-version auto --protocol http2 run --token "${ARGO_AUTH}"
+ExecStart=/root/agsbx/cloudflared tunnel --no-autoupdate --edge-ip-version auto --protocol ${argoproto} run --token "${ARGO_AUTH}"
 Restart=on-failure
 RestartSec=5s
 [Install]
@@ -1141,13 +1143,13 @@ WantedBy=multi-user.target
 EOF
 systemctl daemon-reload >/dev/null 2>&1
 systemctl enable argo >/dev/null 2>&1
-systemctl start argo >/dev/null 2>&1
+systemctl restart argo >/dev/null 2>&1
 elif command -v rc-service >/dev/null 2>&1 && [ "$EUID" -eq 0 ]; then
 cat > /etc/init.d/argo <<EOF
 #!/sbin/openrc-run
 description="argo service"
 command="/root/agsbx/cloudflared tunnel"
-command_args="--no-autoupdate --edge-ip-version auto --protocol http2 run --token ${ARGO_AUTH}"
+command_args="--no-autoupdate --edge-ip-version auto --protocol ${argoproto} run --token ${ARGO_AUTH}"
 pidfile="/run/argo.pid"
 command_background="yes"
 depend() {
@@ -1158,13 +1160,13 @@ chmod +x /etc/init.d/argo >/dev/null 2>&1
 rc-update add argo default >/dev/null 2>&1
 rc-service argo start >/dev/null 2>&1
 else
-nohup "$HOME/agsbx/cloudflared" tunnel --no-autoupdate --edge-ip-version auto --protocol http2 run --token "${ARGO_AUTH}" >/dev/null 2>&1 &
+nohup "$HOME/agsbx/cloudflared" tunnel --no-autoupdate --edge-ip-version auto --protocol ${argoproto} run --token "${ARGO_AUTH}" >/dev/null 2>&1 &
 fi
 echo "${ARGO_DOMAIN}" > "$HOME/agsbx/sbargoym.log"
 echo "${ARGO_AUTH}" > "$HOME/agsbx/sbargotoken.log"
 else
 argoname='临时'
-nohup "$HOME/agsbx/cloudflared" tunnel --url http://localhost:$(cat $HOME/agsbx/argoport.log) --edge-ip-version auto --no-autoupdate --protocol http2 > $HOME/agsbx/argo.log 2>&1 &
+nohup "$HOME/agsbx/cloudflared" tunnel --url http://localhost:$(cat $HOME/agsbx/argoport.log) --edge-ip-version auto --no-autoupdate --protocol ${argoproto} > $HOME/agsbx/argo.log 2>&1 &
 fi
 echo "申请Argo$argoname隧道中……请稍等"
 sleep 15
@@ -1210,21 +1212,21 @@ sed -i '/agsbx\/cloudflared/d' /tmp/crontab.tmp
 if [ -n "$argo" ] && [ -n "$vmag" ]; then
 if [ -n "${ARGO_DOMAIN}" ] && [ -n "${ARGO_AUTH}" ]; then
 if ! pidof systemd >/dev/null 2>&1 && ! command -v rc-service >/dev/null 2>&1; then
-echo '@reboot sleep 10 && /bin/sh -c "nohup $HOME/agsbx/cloudflared tunnel --no-autoupdate --edge-ip-version auto --protocol http2 run --token $(cat $HOME/agsbx/sbargotoken.log 2>/dev/null) >/dev/null 2>&1 &"' >> /tmp/crontab.tmp
+echo '@reboot sleep 10 && /bin/sh -c "nohup $HOME/agsbx/cloudflared tunnel --no-autoupdate --edge-ip-version auto --protocol $(cat $HOME/agsbx/argoproto 2>/dev/null || echo http2) run --token $(cat $HOME/agsbx/sbargotoken.log 2>/dev/null) >/dev/null 2>&1 &"' >> /tmp/crontab.tmp
 fi
 else
 if command -v apk >/dev/null 2>&1; then
 cat > /etc/local.d/alpineargosbx.start <<EOF
 #!/bin/bash
 sleep 10
-nohup $HOME/agsbx/cloudflared tunnel --url http://localhost:\$(cat $HOME/agsbx/argoport.log) --edge-ip-version auto --no-autoupdate --protocol http2 > $HOME/agsbx/argo.log 2>&1 &
+nohup $HOME/agsbx/cloudflared tunnel --url http://localhost:\$(cat $HOME/agsbx/argoport.log) --edge-ip-version auto --no-autoupdate --protocol ${argoproto} > $HOME/agsbx/argo.log 2>&1 &
 sleep 10
 HOME="$HOME" $HOME/bin/agsbx list >/dev/null 2>&1
 EOF
 chmod +x /etc/local.d/alpineargosbx.start
 rc-update add local default >/dev/null 2>&1
 else
-echo '@reboot sleep 10 && /bin/bash -c "nohup $HOME/agsbx/cloudflared tunnel --url http://localhost:$(cat $HOME/agsbx/argoport.log) --edge-ip-version auto --no-autoupdate --protocol http2 > $HOME/agsbx/argo.log 2>&1 & sleep 10 && bash $HOME/bin/agsbx list >/dev/null 2>&1"' >> /tmp/crontab.tmp
+echo '@reboot sleep 10 && /bin/bash -c "nohup $HOME/agsbx/cloudflared tunnel --url http://localhost:$(cat $HOME/agsbx/argoport.log) --edge-ip-version auto --no-autoupdate --protocol $(cat $HOME/agsbx/argoproto 2>/dev/null || echo http2) > $HOME/agsbx/argo.log 2>&1 & sleep 10 && bash $HOME/bin/agsbx list >/dev/null 2>&1"' >> /tmp/crontab.tmp
 fi
 fi
 fi
@@ -2283,7 +2285,7 @@ showmode
 exit
 elif [ "$1" = "rep" ]; then
 cleandel
-rm -rf "$HOME/agsbx"/{sb.json,xr.json,sbargoym.log,sbargotoken.log,argo.log,argoport.log,cdnym,name}
+rm -rf "$HOME/agsbx"/{sb.json,xr.json,sbargoym.log,sbargotoken.log,argo.log,argoport.log,argoproto,cdnym,name}
 echo "Argosbx重置协议完成，开始更新相关协议变量……" && sleep 2
 echo
 elif [ "$1" = "list" ]; then
@@ -2321,10 +2323,10 @@ systemctl restart argo >/dev/null 2>&1
 elif command -v rc-service >/dev/null 2>&1; then
 rc-service argo restart >/dev/null 2>&1
 else
-nohup $HOME/agsbx/cloudflared tunnel --no-autoupdate --edge-ip-version auto --protocol http2 run --token $(cat $HOME/agsbx/sbargotoken.log 2>/dev/null) >/dev/null 2>&1 &
+nohup $HOME/agsbx/cloudflared tunnel --no-autoupdate --edge-ip-version auto --protocol $(cat $HOME/agsbx/argoproto 2>/dev/null || echo http2) run --token $(cat $HOME/agsbx/sbargotoken.log 2>/dev/null) >/dev/null 2>&1 &
 fi
 else
-nohup $HOME/agsbx/cloudflared tunnel --url http://localhost:$(cat $HOME/agsbx/argoport.log 2>/dev/null) --edge-ip-version auto --no-autoupdate --protocol http2 > $HOME/agsbx/argo.log 2>&1 &
+nohup $HOME/agsbx/cloudflared tunnel --url http://localhost:$(cat $HOME/agsbx/argoport.log 2>/dev/null) --edge-ip-version auto --no-autoupdate --protocol $(cat $HOME/agsbx/argoproto 2>/dev/null || echo http2) > $HOME/agsbx/argo.log 2>&1 &
 fi
 ;;
 esac
