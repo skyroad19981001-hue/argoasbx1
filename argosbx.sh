@@ -49,6 +49,7 @@ echo "显示节点信息命令：agsbx list 【或者】 主脚本 list"
 echo "重置变量组命令：自定义各种协议变量组 agsbx rep 【或者】 自定义各种协议变量组 主脚本 rep"
 echo "更新脚本命令：原已安装的自定义各种协议变量组 主脚本 rep"
 echo "更新Xray或Singbox内核命令：agsbx upx或ups 【或者】 主脚本 upx或ups"
+echo "更新Argo(cloudflared)命令：agsbx upa [可选版本号] 【或者】 主脚本 upa [可选版本号]（只替换程序，不改密钥/域名/token）"
 echo "重启脚本命令：agsbx res 【或者】 主脚本 res"
 echo "卸载脚本命令：agsbx del 【或者】 主脚本 del"
 echo "双栈VPS显示IPv4/IPv6节点配置命令：ippz=4或6 agsbx list 【或者】 ippz=4或6 主脚本 list"
@@ -56,7 +57,7 @@ echo "---------------------------------------------------------"
 echo
 }
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-echo "当前版本：V26.11.07"
+echo "当前版本：V26.11.9"
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 hostname=$(uname -a | awk '{print $2}')
 op=$(cat /etc/redhat-release 2>/dev/null || cat /etc/os-release 2>/dev/null | grep -i pretty_name | cut -d \" -f2)
@@ -2275,6 +2276,64 @@ else
 nohup $HOME/agsbx/sing-box run -c $HOME/agsbx/sb.json >/dev/null 2>&1 &
 fi
 }
+uparg(){
+argo_target="$1"
+if [ ! -x "$HOME/agsbx/cloudflared" ]; then
+echo "未找到 $HOME/agsbx/cloudflared，未启用Argo，无需更新"
+return 1
+fi
+argo_cur=$("$HOME/agsbx/cloudflared" version 2>/dev/null | awk '{print $3}')
+if [ -n "$argo_target" ]; then
+argo_new=$(echo "$argo_target" | sed 's/^v//')
+else
+argo_new=$(command -v curl >/dev/null 2>&1 && curl -sIL -m 15 -o /dev/null -w '%{url_effective}' https://github.com/cloudflare/cloudflared/releases/latest 2>/dev/null | sed -n 's#.*/tag/v*\([0-9][0-9.]*\)$#\1#p')
+[ -n "$argo_new" ] || argo_new=$({ command -v curl >/dev/null 2>&1 && curl -sm15 https://api.github.com/repos/cloudflare/cloudflared/releases/latest || timeout 15 wget -qO- https://api.github.com/repos/cloudflare/cloudflared/releases/latest; } | grep -m1 '"tag_name"' | sed 's/.*"tag_name"[[:space:]]*:[[:space:]]*"v*\([^"]*\)".*/\1/')
+fi
+if [ -z "$argo_new" ]; then
+echo "警告：无法获取Cloudflared官方最新版本号，跳过更新，继续使用当前版本"
+return 1
+fi
+if [ "$argo_cur" = "$argo_new" ]; then
+echo "Cloudflared-argo已是最新版本：$argo_cur，无需更新"
+return 1
+fi
+echo "Cloudflared-argo：${argo_cur:-未知} -> $argo_new"
+argo_tmp="$HOME/agsbx/cloudflared.new"
+argo_url="https://github.com/cloudflare/cloudflared/releases/download/$argo_new/cloudflared-linux-$cpu"
+rm -f "$argo_tmp"
+(command -v curl >/dev/null 2>&1 && curl -Lo "$argo_tmp" -# --retry 2 "$argo_url") || (command -v wget >/dev/null 2>&1 && wget -O "$argo_tmp" --tries=2 "$argo_url")
+chmod +x "$argo_tmp" 2>/dev/null
+if ! "$argo_tmp" version >/dev/null 2>&1; then
+echo "下载失败或新文件无法运行，已放弃更新，当前Argo未改动"
+rm -f "$argo_tmp"
+return 1
+fi
+cp -f "$HOME/agsbx/cloudflared" "$HOME/agsbx/cloudflared.bak" 2>/dev/null
+mv -f "$argo_tmp" "$HOME/agsbx/cloudflared"
+if [ ! -e "$HOME/agsbx/sbargotoken.log" ]; then
+echo "提示：当前是临时隧道，重启后trycloudflare域名会变化（固定隧道不受影响）"
+fi
+return 0
+}
+argorestart(){
+if [ -e "$HOME/agsbx/sbargotoken.log" ]; then
+if pidof systemd >/dev/null 2>&1; then
+systemctl restart argo >/dev/null 2>&1
+return 0
+elif command -v rc-service >/dev/null 2>&1; then
+rc-service argo restart >/dev/null 2>&1
+return 0
+fi
+fi
+for P in /proc/[0-9]*; do [ -L "$P/exe" ] || continue; TARGET=$(readlink -f "$P/exe" 2>/dev/null) || continue; case "$TARGET" in *"/agsbx/c"*) kill "$(basename "$P")" 2>/dev/null ;; esac; done
+kill -15 $(pgrep -f 'agsbx/c' 2>/dev/null) >/dev/null 2>&1
+sleep 1
+if [ -e "$HOME/agsbx/sbargotoken.log" ]; then
+nohup $HOME/agsbx/cloudflared tunnel --no-autoupdate --edge-ip-version auto --protocol $(cat $HOME/agsbx/argoproto 2>/dev/null || echo http2) run --token $(cat $HOME/agsbx/sbargotoken.log 2>/dev/null) >/dev/null 2>&1 &
+else
+nohup $HOME/agsbx/cloudflared tunnel --url http://localhost:$(cat $HOME/agsbx/argoport.log 2>/dev/null) --edge-ip-version auto --no-autoupdate --protocol $(cat $HOME/agsbx/argoproto 2>/dev/null || echo http2) > $HOME/agsbx/argo.log 2>&1 &
+fi
+}
 if [ "$1" = "del" ]; then
 cleandel
 rm -rf sbx_update "$HOME/agsbx" "$HOME/websbx"
@@ -2300,6 +2359,9 @@ elif [ "$1" = "ups" ]; then
 for P in /proc/[0-9]*; do [ -L "$P/exe" ] || continue; TARGET=$(readlink -f "$P/exe" 2>/dev/null) || continue; case "$TARGET" in *"/agsbx/s"*) kill "$(basename "$P")" 2>/dev/null ;; esac; done
 kill -15 $(pgrep -f 'agsbx/s' 2>/dev/null) >/dev/null 2>&1
 upsingbox && sbrestart && echo "Sing-box内核更新完成" && sleep 2 && cip
+exit
+elif [ "$1" = "upa" ]; then
+uparg "$2" && argorestart && echo "Cloudflared-argo更新完成" && sleep 5 && cip
 exit
 elif [ "$1" = "res" ]; then
 for P in /proc/[0-9]*; do
