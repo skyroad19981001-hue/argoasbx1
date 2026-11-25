@@ -46,6 +46,7 @@ export oap=${oap:-''}
 v46url="https://icanhazip.com"
 agsbxurl="https://raw.githubusercontent.com/skyroad19981001-hue/argoasbx1/main/argosbx.sh"
 showmode(){
+[ -s "$HOME/agsbx/sh.txt" ] && echo "上次输入的完整脚本：$(cat "$HOME/agsbx/sh.txt")"
 echo "主脚本：bash <(curl -Ls https://raw.githubusercontent.com/skyroad19981001-hue/argoasbx1/main/argosbx.sh) 或 bash <(wget -qO- https://raw.githubusercontent.com/skyroad19981001-hue/argoasbx1/main/argosbx.sh)"
 echo "显示节点信息命令：agsbx list 【或者】 主脚本 list"
 echo "重置变量组命令：自定义各种协议变量组 agsbx rep 【或者】 自定义各种协议变量组 主脚本 rep"
@@ -55,7 +56,7 @@ echo "更新Argo(cloudflared)命令：agsbx upa [可选版本号] 【或者】 �
 echo "重启脚本命令：agsbx res 【或者】 主脚本 res"
 echo "卸载脚本命令：agsbx del 【或者】 主脚本 del"
 echo "双栈VPS显示IPv4/IPv6节点配置命令：ippz=4或6 agsbx list 【或者】 ippz=4或6 主脚本 list"
-echo "申请本地IP域名证书脚本：bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/acme-yg/main/acme.sh)"
+echo "申请本地IP域名证书脚本：bash <(curl -Ls https://raw.githubusercontent.com/skyroad19981001-hue/argoasbx1/main/acme.sh)"
 echo "---------------------------------------------------------"
 echo
 }
