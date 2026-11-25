@@ -37,6 +37,8 @@ export argo=${argo:-''}
 export ARGO_DOMAIN=${agn:-''}
 export ARGO_AUTH=${agk:-''}
 export agqc=${agqc:-''}
+export hyym=${hyym:-''}
+export cftk=${cftk:-''}
 export ippz=${ippz:-''}
 export warp=${warp:-''}
 export name=${name:-''}
@@ -574,6 +576,28 @@ if [ ! -f "$HOME/agsbx/private.key" ]; then
 url="https://github.com/yonggekkk/argosbx/releases/download/argosbx/private.key"; out="$HOME/agsbx/private.key"; (command -v curl>/dev/null 2>&1 && curl -Ls -o "$out" --retry 2 "$url") || (command -v wget>/dev/null 2>&1 && timeout 3 wget -q -O "$out" --tries=2 "$url")
 url="https://github.com/yonggekkk/argosbx/releases/download/argosbx/cert.pem"; out="$HOME/agsbx/cert.pem"; (command -v curl>/dev/null 2>&1 && curl -Ls -o "$out" --retry 2 "$url") || (command -v wget>/dev/null 2>&1 && timeout 3 wget -q -O "$out" --tries=2 "$url")
 fi
+hy2crt="$HOME/agsbx/cert.pem"; hy2key="$HOME/agsbx/private.key"
+if [ -n "$hyp" ] && [ -n "$hyym" ] && [ -n "$cftk" ]; then
+echo "申请Hysteria2正式证书（ACME DNS-01 / Cloudflare）：$hyym"
+rm -f "$HOME/agsbx/hy2.crt" "$HOME/agsbx/hy2.key"
+[ -x "$HOME/.acme.sh/acme.sh" ] || (curl -sL https://get.acme.sh | sh >/dev/null 2>&1)
+if [ -x "$HOME/.acme.sh/acme.sh" ]; then
+export CF_Token="$cftk"
+"$HOME/.acme.sh/acme.sh" --set-default-ca --server letsencrypt >/dev/null 2>&1
+"$HOME/.acme.sh/acme.sh" --issue --dns dns_cf -d "$hyym" --keylength ec-256 --server letsencrypt >/dev/null 2>&1
+"$HOME/.acme.sh/acme.sh" --install-cert -d "$hyym" --ecc --fullchain-file "$HOME/agsbx/hy2.crt" --key-file "$HOME/agsbx/hy2.key" --reloadcmd "systemctl restart sb >/dev/null 2>&1 || rc-service sb restart >/dev/null 2>&1 || true" >/dev/null 2>&1
+fi
+if [ -s "$HOME/agsbx/hy2.crt" ] && [ -s "$HOME/agsbx/hy2.key" ]; then
+hy2crt="$HOME/agsbx/hy2.crt"; hy2key="$HOME/agsbx/hy2.key"
+echo "$hyym" > "$HOME/agsbx/hyym"
+echo "Hysteria2正式证书申请成功，到期前由acme.sh自动续期"
+else
+rm -f "$HOME/agsbx/hyym"
+echo "Hysteria2正式证书申请失败，已回退为自签证书（请检查域名是否在Cloudflare、Token权限是否为Zone.DNS编辑）"
+fi
+else
+rm -f "$HOME/agsbx/hyym"
+fi
 if [ -n "$hyp" ]; then
 hyp=hypt
 if [ -z "$port_hy2" ] && [ ! -e "$HOME/agsbx/port_hy2" ]; then
@@ -601,8 +625,8 @@ cat >> "$HOME/agsbx/sb.json" <<EOF
             "alpn": [
                 "h3"
             ],
-            "certificate_path": "$HOME/agsbx/cert.pem",
-            "key_path": "$HOME/agsbx/private.key"
+            "certificate_path": "${hy2crt}",
+            "key_path": "${hy2key}"
         }
     },
 EOF
@@ -1667,7 +1691,8 @@ EOF
 else
 hyps=
 fi
-hy2_link="hysteria2://$uuid@$server_ip:$port_hy2?security=tls&alpn=h3&insecure=1&allowInsecure=1$hyps&sni=www.bing.com#${sxname}hy2-$hostname"
+if [ -s "$HOME/agsbx/hyym" ]; then hysni=$(cat "$HOME/agsbx/hyym"); hyins=0; hyinsb=false; else hysni=www.bing.com; hyins=1; hyinsb=true; fi
+hy2_link="hysteria2://$uuid@$server_ip:$port_hy2?security=tls&alpn=h3&insecure=${hyins}&allowInsecure=${hyins}$hyps&sni=${hysni}#${sxname}hy2-$hostname"
 echo "$hy2_link" >> "$HOME/agsbx/jhsub.txt"
 echo "$hy2_link"
 echo
@@ -1682,8 +1707,8 @@ $(sbhy2ports 2>/dev/null)
         "password": "$uuid",
         "tls": {
             "enabled": true,
-            "server_name": "www.bing.com",
-            "insecure": true,
+            "server_name": "${hysni}",
+            "insecure": ${hyinsb},
             "alpn": [
                 "h3"
             ]
@@ -1704,8 +1729,8 @@ cat <<EOF
   password: $uuid                          
   alpn:
     - h3
-  sni: www.bing.com                               
-  skip-cert-verify: true
+  sni: ${hysni}                               
+  skip-cert-verify: ${hyinsb}
   fast-open: true
 EOF
 }
