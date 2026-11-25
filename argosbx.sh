@@ -12,12 +12,16 @@ export LANG=en_US.UTF-8
 [ -z "${arpt+x}" ] || arp=yes
 [ -z "${sopt+x}" ] || sop=yes
 [ -z "${warp+x}" ] || wap=yes
+[ -z "${alns+x}" ] || alns=yes
 if find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null | grep -Eq 'agsbx/(s|x)' || pgrep -f 'agsbx/(s|x)' >/dev/null 2>&1; then
 if [ "$1" = "rep" ]; then
-[ "$vwp" = yes ] || [ "$sop" = yes ] || [ "$vxp" = yes ] || [ "$ssp" = yes ] || [ "$vlp" = yes ] || [ "$vmp" = yes ] || [ "$hyp" = yes ] || [ "$tup" = yes ] || [ "$xhp" = yes ] || [ "$anp" = yes ] || [ "$arp" = yes ] || { echo "提示：rep重置协议时，请在脚本前至少设置一个协议变量哦，再见！"; exit; }
+[ "$vwp" = yes ] || [ "$sop" = yes ] || [ "$vxp" = yes ] || [ "$ssp" = yes ] || [ "$vlp" = yes ] || [ "$vmp" = yes ] || [ "$hyp" = yes ] || [ "$tup" = yes ] || [ "$xhp" = yes ] || [ "$anp" = yes ] || [ "$arp" = yes ] || [ "$alns" = yes ] || { echo "提示：rep重置协议时，请在脚本前至少设置一个协议变量哦，再见！"; exit; }
 fi
 else
-[ "$1" = "del" ] || [ "$vwp" = yes ] || [ "$sop" = yes ] || [ "$vxp" = yes ] || [ "$ssp" = yes ] || [ "$vlp" = yes ] || [ "$vmp" = yes ] || [ "$hyp" = yes ] || [ "$tup" = yes ] || [ "$xhp" = yes ] || [ "$anp" = yes ] || [ "$arp" = yes ] || { echo "提示：未安装argosbx脚本，请在脚本前至少设置一个协议变量哦，再见！💣"; exit; }
+[ "$1" = "del" ] || [ "$vwp" = yes ] || [ "$sop" = yes ] || [ "$vxp" = yes ] || [ "$ssp" = yes ] || [ "$vlp" = yes ] || [ "$vmp" = yes ] || [ "$hyp" = yes ] || [ "$tup" = yes ] || [ "$xhp" = yes ] || [ "$anp" = yes ] || [ "$arp" = yes ] || [ "$alns" = yes ] || { echo "提示：未安装argosbx脚本，请在脚本前至少设置一个协议变量哦，再见！💣"; exit; }
+fi
+if [ "$alns" = yes ]; then
+bash <(curl -Ls https://raw.githubusercontent.com/skyroad19981001-hue/argoasbx1/main/acme.sh)
 fi
 export uuid=${uuid:-''}
 export port_vl_re=${vlpt:-''}
@@ -46,7 +50,6 @@ export oap=${oap:-''}
 v46url="https://icanhazip.com"
 agsbxurl="https://raw.githubusercontent.com/skyroad19981001-hue/argoasbx1/main/argosbx.sh"
 showmode(){
-[ -s "$HOME/agsbx/sh.txt" ] && echo "上次输入的完整脚本：$(cat "$HOME/agsbx/sh.txt")"
 echo "主脚本：bash <(curl -Ls https://raw.githubusercontent.com/skyroad19981001-hue/argoasbx1/main/argosbx.sh) 或 bash <(wget -qO- https://raw.githubusercontent.com/skyroad19981001-hue/argoasbx1/main/argosbx.sh)"
 echo "显示节点信息命令：agsbx list 【或者】 主脚本 list"
 echo "重置变量组命令：自定义各种协议变量组 agsbx rep 【或者】 自定义各种协议变量组 主脚本 rep"
@@ -56,12 +59,11 @@ echo "更新Argo(cloudflared)命令：agsbx upa [可选版本号] 【或者】 �
 echo "重启脚本命令：agsbx res 【或者】 主脚本 res"
 echo "卸载脚本命令：agsbx del 【或者】 主脚本 del"
 echo "双栈VPS显示IPv4/IPv6节点配置命令：ippz=4或6 agsbx list 【或者】 ippz=4或6 主脚本 list"
-echo "申请本地IP域名证书脚本：bash <(curl -Ls https://raw.githubusercontent.com/skyroad19981001-hue/argoasbx1/main/acme.sh)"
 echo "---------------------------------------------------------"
 echo
 }
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-echo "当前版本：V26.11.22"
+echo "当前版本：V26.11.9"
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 hostname=$(uname -a | awk '{print $2}')
 op=$(cat /etc/redhat-release 2>/dev/null || cat /etc/os-release 2>/dev/null | grep -i pretty_name | cut -d \" -f2)
