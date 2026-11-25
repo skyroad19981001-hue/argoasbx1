@@ -153,20 +153,9 @@ ym=`bash ~/.acme.sh/acme.sh --list | awk 'NR>1{print $1}' | tail -1`
 echo $ym > /root/skyca/ca.log
 if [[ -f '/etc/hysteria/config.json' ]]; then
 blue "检测到Hysteria-1代理协议，如果你安装了Hysteria脚本，请在Hysteria脚本执行申请/变更证书，此证书将自动应用"
+fi
 if [[ -f "$HOME/agsbx/sb.json" ]]; then
 blue "检测到sing-box内核代理，如果你安装了Argosbx脚本，HY2/TUIC/AnyTLS/Naiveproxy四大协议将支持IP域名证书"
-fi
-else
-bash ~/.acme.sh/acme.sh --uninstall >/dev/null 2>&1
-rm -rf /root/skyca
-rm -rf ~/.acme.sh acme.sh
-uncronac
-red "遗憾，IP域名证书申请失败，建议如下："
-yellow "1、如果你是域名证书申请：如果解析到的IP是104.2开头的或者172开头的IP，请确保CF中的CDN黄云已关闭，解析的IP必须是VPS的本地IP"
-echo
-yellow "2、如果你是域名证书申请：更换下二级域名自定义名称再尝试执行重装脚本（重要）"
-echo
-yellow "3、如果你是IP证书或者域名证书申请：因为同个本地IP连续多次申请证书有时间限制，等一段时间再重装脚本" && exit
 fi
 fi
 }
