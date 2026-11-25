@@ -602,6 +602,11 @@ fi
 else
 rm -f "$HOME/agsbx/hyym"
 fi
+if [ -s /root/skyca/cert.crt ] && [ -s /root/skyca/private.key ]; then
+hy2crt=/root/skyca/cert.crt; hy2key=/root/skyca/private.key
+[ -s /root/skyca/ca.log ] && cat /root/skyca/ca.log > "$HOME/agsbx/hyym"
+echo "Hysteria2直接调用 /root/skyca 证书"
+fi
 if [ -n "$hyp" ]; then
 hyp=hypt
 if [ -z "$port_hy2" ] && [ ! -e "$HOME/agsbx/port_hy2" ]; then
