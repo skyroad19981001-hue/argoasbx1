@@ -140,7 +140,6 @@ else
 red "安装acme.sh证书申请程序失败" && exit
 fi
 }
-
 checktls(){
 if [[ -s /root/ygkkkca/cert.crt && -s /root/ygkkkca/private.key ]]; then
 cronac
@@ -169,11 +168,11 @@ echo
 yellow "3、如果你是IP证书或者域名证书申请：因为同个本地IP连续多次申请证书有时间限制，等一段时间再重装脚本" && exit
 fi
 }
-
+else
 installCA(){
 bash ~/.acme.sh/acme.sh --install-cert -d ${ym} --key-file /root/ygkkkca/private.key --fullchain-file /root/ygkkkca/cert.crt --ecc
 }
-
+rm -rf ~/.acme.sh acme.sh
 checkip(){
 v4v6
 if [[ -z $v4 ]]; then
