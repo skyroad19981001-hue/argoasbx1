@@ -142,15 +142,15 @@ fi
 }
 
 checktls(){
-if [[ -s /root/ygkkkca/cert.crt && -s /root/ygkkkca/private.key ]]; then
+if [[ -s /root/skyca/cert.crt && -s /root/skyca/private.key ]]; then
 cronac
-green "IP域名证书申请成功或已存在！域名证书（cert.crt）和密钥（private.key）已保存到 /root/ca文件夹内" 
+green "IP域名证书申请成功或已存在！域名证书（cert.crt）和密钥（private.key）已保存到 /root/skyca文件夹内" 
 yellow "公钥文件crt路径如下，可直接复制"
-green "/root/ca/cert.crt"
+green "/root/skyca/cert.crt"
 yellow "密钥文件key路径如下，可直接复制"
-green "/root/ca/private.key"
+green "/root/skyca/private.key"
 ym=`bash ~/.acme.sh/acme.sh --list | awk 'NR>1{print $1}' | tail -1`
-echo $ym > /root/ca/ca.log
+echo $ym > /root/skyca/ca.log
 if [[ -f '/etc/hysteria/config.json' ]]; then
 blue "检测到Hysteria-1代理协议，如果你安装了Hysteria脚本，请在Hysteria脚本执行申请/变更证书，此证书将自动应用"
 if [[ -f "$HOME/agsbx/sb.json" ]]; then
@@ -158,7 +158,7 @@ blue "检测到sing-box内核代理，如果你安装了Argosbx脚本，HY2/TUIC
 fi
 else
 bash ~/.acme.sh/acme.sh --uninstall >/dev/null 2>&1
-rm -rf /root/ca
+rm -rf /root/skyca
 rm -rf ~/.acme.sh acme.sh
 uncronac
 red "遗憾，IP域名证书申请失败，建议如下："
@@ -172,7 +172,7 @@ fi
 }
 
 installCA(){
-bash ~/.acme.sh/acme.sh --install-cert -d ${ym} --key-file /root/ygkkkca/private.key --fullchain-file /root/ygkkkca/cert.crt --ecc
+bash ~/.acme.sh/acme.sh --install-cert -d ${ym} --key-file /root/skyca/private.key --fullchain-file /root/skyca/cert.crt --ecc
 }
 
 checkip(){
@@ -259,7 +259,7 @@ bash ~/.acme.sh/acme.sh --issue -d "$ip1" -d "$ip2" --standalone -k ec-256 --ser
 else
 bash ~/.acme.sh/acme.sh --issue -d "$ym" --standalone -k ec-256 --server letsencrypt --cert-profile shortlived --days 3 --insecure
 fi
-bash ~/.acme.sh/acme.sh --install-cert -d "$ip1" --key-file /root/ygkkkca/private.key --fullchain-file /root/ygkkkca/cert.crt --ecc
+bash ~/.acme.sh/acme.sh --install-cert -d "$ip1" --key-file /root/skyca/private.key --fullchain-file /root/skyca/cert.crt --ecc
 checktls
 }
 
@@ -409,7 +409,7 @@ fi
 }
 
 acme(){
-mkdir -p /root/ygkkkca
+mkdir -p /root/skyca
 ab="1.选择独立80端口模式申请IP证书（无需域名，小白推荐）\n2.选择独立80端口模式申请域名证书（需域名）\n3.选择DNS API模式申请证书（需域名、ID、Key），自动识别单域名与泛域名\n 请选择："
 readp "$ab" cd
 case "$cd" in 
@@ -427,7 +427,7 @@ bash ~/.acme.sh/acme.sh --list
 #if [[ -n $(bash ~/.acme.sh/acme.sh --list | grep $ym) ]]; then
 #bash ~/.acme.sh/acme.sh --revoke -d ${ym} --ecc
 #bash ~/.acme.sh/acme.sh --remove -d ${ym} --ecc
-#rm -rf /root/ygkkkca
+#rm -rf /root/skyca
 #green "撤销并删除${ym}域名证书成功"
 #else
 #red "未找到你输入的${ym}域名证书，请自行核实！" && exit
@@ -437,7 +437,7 @@ bash ~/.acme.sh/acme.sh --list
 acmeshow(){
 if [[ -n $(~/.acme.sh/acme.sh -v 2>/dev/null) ]]; then
 caacme1=`bash ~/.acme.sh/acme.sh --list | awk 'NR>1{print $1}' | tail -1`
-if [[ -n $caacme1 && ! $caacme1 == "Main_Domain" ]] && [[ -f /root/ygkkkca/cert.crt && -f /root/ygkkkca/private.key && -s /root/ygkkkca/cert.crt && -s /root/ygkkkca/private.key ]]; then
+if [[ -n $caacme1 && ! $caacme1 == "Main_Domain" ]] && [[ -f /root/skyca/cert.crt && -f /root/skyca/private.key && -s /root/skyca/cert.crt && -s /root/skyca/private.key ]]; then
 caacme=$caacme1
 else
 caacme='无证书申请记录'
@@ -488,7 +488,7 @@ uninstall(){
 [[ -z $(~/.acme.sh/acme.sh -v 2>/dev/null) ]] && yellow "未安装acme.sh证书申请，无法执行" && exit 
 curl https://get.acme.sh | sh
 bash ~/.acme.sh/acme.sh --uninstall
-rm -rf /root/ygkkkca
+rm -rf /root/skyca
 rm -rf ~/.acme.sh acme.sh
 sed -i '/acme.sh.env/d' ~/.bashrc 
 source ~/.bashrc
@@ -503,8 +503,8 @@ yellow "1、SSH登录的IP与VPS本地IP必须一致"
 yellow "2、80端口模式仅支持单域名证书申请，在80端口不被占用的情况下支持自动续期"
 yellow "3、DNS API模式不支持freenom免费域名申请，支持单域名与泛域名证书申请，无条件自动续期"
 yellow "4、泛域名申请前须在服务商解析处设置一个名称为 * 字符的解析记录 (输入格式：*.一级或者二级主域)"
-yellow "公钥文件crt保存路径：/root/ca/cert.crt"
-yellow "密钥文件key保存路径：/root/ca/private.key"
+yellow "公钥文件crt保存路径：/root/skyca/cert.crt"
+yellow "密钥文件key保存路径：/root/skyca/private.key"
 echo
 red "========================================================================="
 acmeshow
