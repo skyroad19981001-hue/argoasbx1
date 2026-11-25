@@ -486,7 +486,7 @@ uncronac
 }
 
 clear
-green "Acme脚本版本号 V26.6.17"
+green "Acme脚本版本号 V26.11.28"
 yellow "提示："
 yellow "1、SSH登录的IP与VPS本地IP必须一致"
 yellow "2、80端口模式仅支持单域名证书申请，在80端口不被占用的情况下支持自动续期"
