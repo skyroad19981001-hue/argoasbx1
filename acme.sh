@@ -133,7 +133,12 @@ cd acme.sh-master >/dev/null 2>&1
 ./acme.sh --install >/dev/null 2>&1
 cd
 curl https://get.acme.sh | sh -s email=$Aemail
-if [[ -n $(~/.acme.sh/acme.sh -v 2>/dev/null) ]]; then
+# 完整性：get.acme.sh 在部分机器上会装到 /etc/acme.sh，而不是 ~/.acme.sh，
+# 后面全脚本都用 ~/.acme.sh/acme.sh，装完先统一归一到 ~/.acme.sh 再校验
+if [ ! -x "$HOME/.acme.sh/acme.sh" ] && [ -x "/etc/acme.sh/acme.sh" ]; then
+ln -sfn /etc/acme.sh "$HOME/.acme.sh"
+fi
+if [[ -n $(~/.acme.sh/acme.sh -v 2>/dev/null || /etc/acme.sh/acme.sh -v 2>/dev/null) ]]; then
 green "安装acme.sh证书申请程序成功"
 bash ~/.acme.sh/acme.sh --upgrade --use-wget --auto-upgrade
 else
@@ -486,7 +491,7 @@ uncronac
 }
 
 clear
-green "Acme脚本版本号 V26.11.28"
+green "Acme脚本版本号 V26.6.17"
 yellow "提示："
 yellow "1、SSH登录的IP与VPS本地IP必须一致"
 yellow "2、80端口模式仅支持单域名证书申请，在80端口不被占用的情况下支持自动续期"

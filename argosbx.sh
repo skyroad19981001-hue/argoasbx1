@@ -21,7 +21,10 @@ else
 [ "$1" = "del" ] || [ "$vwp" = yes ] || [ "$sop" = yes ] || [ "$vxp" = yes ] || [ "$ssp" = yes ] || [ "$vlp" = yes ] || [ "$vmp" = yes ] || [ "$hyp" = yes ] || [ "$tup" = yes ] || [ "$xhp" = yes ] || [ "$anp" = yes ] || [ "$arp" = yes ] || [ "$alns" = yes ] || { echo "提示：未安装argosbx脚本，请在脚本前至少设置一个协议变量哦，再见！💣"; exit; }
 fi
 if [ "$alns" = yes ]; then
-bash <(curl -Ls https://raw.githubusercontent.com/skyroad19981001-hue/argoasbx1/main/acme.sh)
+bash <(curl -Ls https://raw.githubusercontent.com/skyroad19981001-hue/argoasbx1/main/acme.sh) || { echo "acme.sh 执行失败，停止安装，不继续装协议"; exit 1; }
+if [ ! -s /root/skyca/cert.crt ] || [ ! -s /root/skyca/private.key ]; then
+echo "acme.sh 执行后 /root/skyca 证书不存在，停止安装，不继续装协议"; exit 1
+fi
 fi
 export uuid=${uuid:-''}
 export port_vl_re=${vlpt:-''}
